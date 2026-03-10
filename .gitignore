@@ -1,0 +1,8 @@
+node_modules/
+.next/
+dist/
+.env
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode
