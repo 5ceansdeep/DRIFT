@@ -1,8 +1,93 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  username        String   @unique
+  passwordHash    String   @map("password_hash")
+  tasteVector     Float[]  @default([]) @map("taste_vector")
+  vectorUpdatedAt DateTime? @map("vector_updated_at")
+  coordX          Float?   @map("coord_x")
+  coordY          Float?   @map("coord_y")
+  coordZ          Float?   @map("coord_z")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  userSongs  UserSong[]
+  satellites Satellite[]
+  followers  SocialRelation[] @relation("following")
+  followings SocialRelation[] @relation("follower")
+
+  @@map("users")
+}
+
+model Song {
+  id         String   @id @default(uuid())
+  title      String
+  artist     String
+  mbid       String?  @unique
+  coverUrl   String?  @map("cover_url")
+  genreTags  String[] @default([]) @map("genre_tags")
+  songVector Float[]  @default([]) @map("song_vector")
+  coordX     Float?   @map("coord_x")
+  coordY     Float?   @map("coord_y")
+  coordZ     Float?   @map("coord_z")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  userSongs  UserSong[]
+  satellites Satellite[]
+
+  @@map("songs")
+}
+
+model UserSong {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  songId      String   @map("song_id")
+  savedAt     DateTime @default(now()) @map("saved_at")
+  playCount   Int      @default(0) @map("play_count")
+  source      String
+  emotionTags String?  @map("emotion_tags")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, songId])
+  @@map("user_songs")
+}
+
+model SocialRelation {
+  id              String   @id @default(uuid())
+  followerId      String   @map("follower_id")
+  followingId     String   @map("following_id")
+  similarityScore Float?   @map("similarity_score")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("social_relations")
+}
+
+model Satellite {
+  id        String   @id @default(uuid())
+  ownerId   String   @map("owner_id")
+  songId    String   @map("song_id")
+  message   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  song  Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@map("satellites")
 }
