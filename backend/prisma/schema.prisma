@@ -21,9 +21,6 @@ model User {
 
   userSongs  UserSong[]
   satellites Satellite[]
-  followers  SocialRelation[] @relation("following")
-  followings SocialRelation[] @relation("follower")
-
   @@map("users")
 }
 
@@ -63,20 +60,6 @@ model UserSong {
 
   @@unique([userId, songId])
   @@map("user_songs")
-}
-
-model SocialRelation {
-  id              String   @id @default(uuid())
-  followerId      String   @map("follower_id")
-  followingId     String   @map("following_id")
-  similarityScore Float?   @map("similarity_score")
-  createdAt       DateTime @default(now()) @map("created_at")
-
-  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
-  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
-
-  @@unique([followerId, followingId])
-  @@map("social_relations")
 }
 
 model Satellite {
