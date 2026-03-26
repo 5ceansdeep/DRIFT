@@ -6,7 +6,9 @@
       "Bash(curl -s \"https://itunes.apple.com/search?term=%EC%95%84%EC%9D%B4%EC%9C%A0+%EB%B9%84%EB%B0%80&entity=song&country=kr&limit=50\")",
       "Bash(node -e \"const fs=require\\(''fs''\\);const c=fs.readFileSync\\(''dist/songs/songs.service.js'',''utf8''\\);console.log\\(c.includes\\(''relevance''\\)\\);console.log\\(c.includes\\(''matchRatio''\\)\\)\")",
       "Bash(git reset:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(curl -s \"https://ws.audioscrobbler.com/2.0/?method=track.getTopTags&artist=IU&track=Blueming&api_key=c929380d92a84e84c02d0521f520df5b&format=json\")",
+      "Bash(curl -s \"https://ws.audioscrobbler.com/2.0/?method=artist.getTopTags&artist=IU&api_key=c929380d92a84e84c02d0521f520df5b&format=json\")"
     ]
   }
 }

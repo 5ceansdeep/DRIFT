@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ArchiveSongDto } from './dto/archive-song.dto';
+import { SongVectorService } from './song-vector.service';
 
 @Injectable()
 export class SongsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private songVectorService: SongVectorService,
+  ) {}
 
   async search(query: string) {
     const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&country=kr&limit=50`;
@@ -55,11 +59,16 @@ export class SongsService {
     });
 
     if (!song) {
+      // Last.fm에서 태그 조회 → song_vector 생성
+      const { vector, tags } = await this.songVectorService.generateSongVector(dto.title, dto.artist);
+
       song = await this.prisma.song.create({
         data: {
           title: dto.title,
           artist: dto.artist,
           coverUrl: dto.coverUrl,
+          songVector: vector,
+          genreTags: tags,
         },
       });
     }
@@ -77,6 +86,9 @@ export class SongsService {
         emotionTags: dto.emotionTags,
       },
     });
+
+    // taste_vector 재계산
+    await this.updateTasteVector(userId);
 
     return { message: '아카이브에 저장되었습니다', song };
   }
@@ -116,6 +128,48 @@ export class SongsService {
       where: { id: userSongId },
     });
 
+    // taste_vector 재계산
+    await this.updateTasteVector(userId);
+
     return { message: '아카이브에서 삭제되었습니다' };
+  }
+
+  /**
+   * 유저의 저장곡 song_vector 평균 → taste_vector 업데이트
+   */
+  private async updateTasteVector(userId: string) {
+    const userSongs = await this.prisma.userSong.findMany({
+      where: { userId },
+      include: { song: true },
+    });
+
+    const vectors = userSongs
+      .map((us) => us.song.songVector)
+      .filter((v) => v.length > 0);
+
+    if (vectors.length === 0) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { tasteVector: [], vectorUpdatedAt: new Date() },
+      });
+      return;
+    }
+
+    // 각 차원별 평균
+    const size = vectors[0].length;
+    const avg = new Array(size).fill(0);
+    for (const v of vectors) {
+      for (let i = 0; i < size; i++) {
+        avg[i] += v[i];
+      }
+    }
+    for (let i = 0; i < size; i++) {
+      avg[i] = Math.round((avg[i] / vectors.length) * 1000) / 1000;
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { tasteVector: avg, vectorUpdatedAt: new Date() },
+    });
   }
 }
