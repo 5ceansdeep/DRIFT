@@ -25,6 +25,39 @@ const TAGS = [
   'korean', 'japanese', 'british', 'american',
 ];
 
+// Last.fm 태그 표기 차이 정규화
+const TAG_NORMALIZE: Record<string, string> = {
+  'kpop': 'k-pop',
+  'jpop': 'j-pop',
+  'hiphop': 'hip-hop',
+  'hip hop': 'hip-hop',
+  'rnb': 'r&b',
+  'r and b': 'r&b',
+  'lo fi': 'lo-fi',
+  'lofi': 'lo-fi',
+  'synth pop': 'synth-pop',
+  'synthpop': 'synth-pop',
+  'alt rock': 'alt-rock',
+  'alternative rock': 'alt-rock',
+  'post punk': 'post-punk',
+  'dream-pop': 'dream pop',
+  'indie-rock': 'indie rock',
+  'indie-pop': 'indie pop',
+  'drum n bass': 'drum and bass',
+  'dnb': 'drum and bass',
+  'female vocals': 'female vocalists',
+  'male vocals': 'male vocalists',
+  'prog rock': 'progressive rock',
+  'singer songwriter': 'singer-songwriter',
+  'electronica': 'electronic',
+  'chillout': 'chill',
+  'chill out': 'chill',
+  'melancholic': 'melancholy',
+  "80's": '80s',
+  "90's": '90s',
+  "00's": '00s',
+};
+
 const TAG_INDEX = new Map(TAGS.map((tag, i) => [tag, i]));
 const VECTOR_SIZE = TAGS.length;
 
@@ -43,10 +76,10 @@ export class SongVectorService {
       const trackData = await trackRes.json();
 
       if (trackData.toptags?.tag?.length > 0) {
-        return trackData.toptags.tag.map((t: any) => ({
-          name: t.name.toLowerCase().trim(),
-          count: Number(t.count),
-        }));
+        return trackData.toptags.tag.map((t: any) => {
+          const raw = t.name.toLowerCase().trim();
+          return { name: TAG_NORMALIZE[raw] ?? raw, count: Number(t.count) };
+        });
       }
     } catch {}
 
@@ -57,10 +90,10 @@ export class SongVectorService {
       const artistData = await artistRes.json();
 
       if (artistData.toptags?.tag?.length > 0) {
-        return artistData.toptags.tag.map((t: any) => ({
-          name: t.name.toLowerCase().trim(),
-          count: Number(t.count),
-        }));
+        return artistData.toptags.tag.map((t: any) => {
+          const raw = t.name.toLowerCase().trim();
+          return { name: TAG_NORMALIZE[raw] ?? raw, count: Number(t.count) };
+        });
       }
     } catch {}
 
@@ -81,7 +114,8 @@ export class SongVectorService {
       const index = TAG_INDEX.get(tag.name);
 
       if (index !== undefined) {
-        vector[index] = tag.count / maxCount;
+        const score = tag.count / maxCount;
+        vector[index] = Math.max(vector[index], score);
       }
     }
 
