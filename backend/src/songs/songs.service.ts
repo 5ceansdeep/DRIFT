@@ -41,7 +41,7 @@ export class SongsService {
       })
       .sort((a: any, b: any) => b.score - a.score);
 
-    return scored.map(({ track, score }: any) => ({
+    const results = scored.map(({ track, score }: any) => ({
       title: track.trackName,
       artist: track.artistName,
       album: track.collectionName,
@@ -50,6 +50,34 @@ export class SongsService {
       genre: track.primaryGenreName,
       relevance: score,
     }));
+
+    // 응답 반환 후 백그라운드로 곡 정보만 저장 (song_vector는 아카이브 시 생성)
+    setImmediate(() => this.saveSongsToPool(results).catch(() => {}));
+
+    return results;
+  }
+
+  /**
+   * 검색 결과를 songs 테이블에 저장 (title/artist/coverUrl만, song_vector 없이)
+   * song_vector는 실제 아카이브 시 생성됨
+   */
+  private async saveSongsToPool(results: any[]) {
+    for (const result of results) {
+      if (!result.title || !result.artist) continue;
+
+      const exists = await this.prisma.song.findFirst({
+        where: { title: result.title, artist: result.artist },
+      });
+      if (exists) continue;
+
+      await this.prisma.song.create({
+        data: {
+          title: result.title,
+          artist: result.artist,
+          coverUrl: result.coverUrl,
+        },
+      });
+    }
   }
 
   async archive(userId: string, dto: ArchiveSongDto) {
