@@ -21,14 +21,18 @@ def get_connection():
 def fetch_user_vectors(conn):
     """taste_vector가 있는 유저들 조회"""
     cur = conn.cursor()
-    cur.execute("""
-        SELECT id, taste_vector
-        FROM users
-        WHERE taste_vector != '{}'
-    """)
-    rows = cur.fetchall()
+
+    # 전체 유저 수 확인
+    cur.execute("SELECT id, taste_vector FROM users")
+    all_rows = cur.fetchall()
+    print(f'전체 유저 수: {len(all_rows)}명')
+    for row in all_rows:
+        print(f'  id={row[0][:8]}... taste_vector 길이={len(row[1]) if row[1] else 0}')
+
+    # taste_vector가 있는 유저만 필터
+    rows = [(row[0], row[1]) for row in all_rows if row[1] and len(row[1]) > 0]
     cur.close()
-    return [(row[0], row[1]) for row in rows]
+    return rows
 
 
 def update_user_coords(conn, user_id, x, y, z):
@@ -60,8 +64,12 @@ def main():
     # 1. DB에서 유저 벡터 조회
     user_data = fetch_user_vectors(conn)
 
-    if len(user_data) < 2:
-        print(f'유저 수가 {len(user_data)}명이라 UMAP 계산 불가 (최소 2명 필요)')
+    if len(user_data) < 3:
+        print(f'유저 수가 {len(user_data)}명이라 UMAP 계산 불가 (최소 3명 필요) → 임시 랜덤 좌표 할당')
+        for user_id, _ in user_data:
+            x, y, z = float(np.random.uniform(-5, 5)), float(np.random.uniform(-5, 5)), float(np.random.uniform(-5, 5))
+            update_user_coords(conn, user_id, x, y, z)
+        conn.commit()
         conn.close()
         return
 

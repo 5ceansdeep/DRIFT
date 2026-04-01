@@ -99,6 +99,14 @@ export class SongsService {
           genreTags: tags,
         },
       });
+    } else if ((song.songVector as number[]).length === 0) {
+      // 검색 자동 저장으로 들어온 곡 (song_vector 없음) → 지금 생성
+      const { vector, tags } = await this.songVectorService.generateSongVector(dto.title, dto.artist);
+
+      song = await this.prisma.song.update({
+        where: { id: song.id },
+        data: { songVector: vector, genreTags: tags },
+      });
     }
 
     // UserSong 연결 (이미 있으면 무시)
