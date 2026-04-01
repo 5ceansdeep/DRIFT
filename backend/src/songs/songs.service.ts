@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ArchiveSongDto } from './dto/archive-song.dto';
 import { SongVectorService } from './song-vector.service';
+import { PcaService } from '../universe/pca.service';
 
 @Injectable()
 export class SongsService {
   constructor(
     private prisma: PrismaService,
     private songVectorService: SongVectorService,
+    private pcaService: PcaService,
   ) {}
 
   async search(query: string) {
@@ -207,5 +209,7 @@ export class SongsService {
       where: { id: userId },
       data: { tasteVector: avg, vectorUpdatedAt: new Date() },
     });
+
+    await this.pcaService.updateUserCoords(userId, avg);
   }
 }
