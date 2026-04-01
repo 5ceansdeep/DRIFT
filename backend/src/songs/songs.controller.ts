@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SongsService } from './songs.service';
+import { RecommendService } from './recommend.service';
 import { JwtGuard } from '../auth/guard/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ArchiveSongDto } from './dto/archive-song.dto';
@@ -8,7 +9,19 @@ import { ArchiveSongDto } from './dto/archive-song.dto';
 @ApiTags('songs')
 @Controller('songs')
 export class SongsController {
-  constructor(private songsService: SongsService) {}
+  constructor(
+    private songsService: SongsService,
+    private recommendService: RecommendService,
+  ) {}
+
+  @Get('recommend')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '곡 추천 (별/혜성)' })
+  @ApiResponse({ status: 200, description: '별(코사인 유사도 높음) + 혜성(serendipity) 추천 결과' })
+  recommend(@CurrentUser() user: any) {
+    return this.recommendService.recommend(user.sub);
+  }
 
   @Get('search')
   @ApiOperation({ summary: '곡 검색 (iTunes)' })

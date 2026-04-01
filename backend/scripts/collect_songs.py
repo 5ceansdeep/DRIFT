@@ -4,12 +4,16 @@ chart.getTopTracks로 인기곡을 가져와 song_vector 생성 후 DB에 저장
 """
 
 import os
+import sys
 import time
 import uuid
 import numpy as np
 import psycopg2
 import requests
 from dotenv import load_dotenv
+
+# Windows 터미널 UTF-8 출력
+sys.stdout.reconfigure(encoding='utf-8')
 
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
