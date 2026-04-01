@@ -1,4 +1,0 @@
-umap-learn
-numpy
-psycopg2-binary
-python-dotenv
