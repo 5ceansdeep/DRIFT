@@ -24,8 +24,4 @@ export class ArchiveSongDto {
   @IsString()
   source: string;
 
-  @ApiProperty({ example: '따뜻한', required: false })
-  @IsOptional()
-  @IsString()
-  emotionTags?: string;
 }

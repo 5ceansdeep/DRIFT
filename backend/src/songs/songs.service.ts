@@ -121,7 +121,6 @@ export class SongsService {
         userId,
         songId: song.id,
         source: dto.source,
-        emotionTags: dto.emotionTags,
       },
     });
 
@@ -143,7 +142,6 @@ export class SongsService {
       savedAt: us.savedAt,
       playCount: us.playCount,
       source: us.source,
-      emotionTags: us.emotionTags,
       song: {
         id: us.song.id,
         title: us.song.title,
