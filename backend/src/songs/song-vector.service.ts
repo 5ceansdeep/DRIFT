@@ -61,6 +61,48 @@ const TAG_NORMALIZE: Record<string, string> = {
 const TAG_INDEX = new Map(TAGS.map((tag, i) => [tag, i]));
 const VECTOR_SIZE = TAGS.length;
 
+// iTunes primaryGenreName → TAGS 매핑
+const ITUNES_GENRE_MAP: Record<string, string[]> = {
+  'k-pop': ['k-pop', 'korean'],
+  'korean pop': ['k-pop', 'korean'],
+  'j-pop': ['j-pop', 'japanese'],
+  'pop': ['pop'],
+  'rock': ['rock'],
+  'alternative': ['alternative'],
+  'alternative & punk': ['alternative', 'punk'],
+  'hip-hop/rap': ['hip-hop', 'rap'],
+  'hip-hop': ['hip-hop', 'rap'],
+  'electronic': ['electronic'],
+  'electronica/dance': ['electronic', 'dance'],
+  'dance': ['dance'],
+  'edm': ['edm', 'electronic'],
+  'jazz': ['jazz'],
+  'classical': ['classical'],
+  'metal': ['metal'],
+  'punk': ['punk'],
+  'folk': ['folk'],
+  'country': ['country'],
+  'blues': ['blues'],
+  'r&b/soul': ['r&b', 'soul'],
+  'r&b': ['r&b'],
+  'soul': ['soul'],
+  'reggae': ['reggae'],
+  'funk': ['funk'],
+  'indie pop': ['indie pop', 'indie'],
+  'indie rock': ['indie rock', 'indie'],
+  'singer/songwriter': ['singer-songwriter'],
+  'latin': ['latin'],
+  'ambient': ['ambient'],
+  'easy listening': ['chill', 'mellow'],
+  'house': ['house', 'electronic'],
+  'techno': ['techno', 'electronic'],
+  'trance': ['trance', 'electronic'],
+  'dubstep': ['dubstep', 'electronic'],
+  'trap': ['trap', 'hip-hop'],
+  'instrumental': ['instrumental'],
+  'acoustic': ['acoustic'],
+};
+
 @Injectable()
 export class SongVectorService {
   /**
@@ -97,7 +139,31 @@ export class SongVectorService {
       }
     } catch {}
 
+    // 3차: iTunes primaryGenreName 폴백
+    try {
+      return await this.fetchItunesGenreTags(title, artist);
+    } catch {}
+
     return [];
+  }
+
+  /**
+   * iTunes API에서 장르 조회 → TAGS 형식으로 변환
+   */
+  private async fetchItunesGenreTags(
+    title: string,
+    artist: string,
+  ): Promise<{ name: string; count: number }[]> {
+    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(artist + ' ' + title)}&entity=song&limit=5`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.results?.length) return [];
+
+    const genre = (data.results[0].primaryGenreName ?? '').toLowerCase().trim();
+    const mapped = ITUNES_GENRE_MAP[genre] ?? [];
+
+    return mapped.map((name) => ({ name, count: 100 }));
   }
 
   /**
