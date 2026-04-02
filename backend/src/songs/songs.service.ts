@@ -47,7 +47,7 @@ export class SongsService {
       title: track.trackName,
       artist: track.artistName,
       album: track.collectionName,
-      coverUrl: track.artworkUrl100,
+      coverUrl: track.artworkUrl100?.replace('100x100bb', '600x600bb') ?? null,
       previewUrl: track.previewUrl,
       genre: track.primaryGenreName,
       relevance: score,
