@@ -17,15 +17,15 @@ export class SatellitesController {
   @ApiOperation({ summary: 'Satellite 등록 (최대 3개)' })
   @ApiResponse({ status: 201, description: '등록 성공' })
   @ApiResponse({ status: 400, description: '최대 개수 초과' })
-  create(@CurrentUser() user: any, @Body() dto: CreateSatelliteDto) {
-    return this.satellitesService.create(user.sub, dto);
+  create(@CurrentUser() user: { id: string }, @Body() dto: CreateSatelliteDto) {
+    return this.satellitesService.create(user.id, dto);
   }
 
   @Get('my')
   @ApiOperation({ summary: '내 Satellite 목록' })
   @ApiResponse({ status: 200, description: 'Satellite 목록' })
-  getMySatellites(@CurrentUser() user: any) {
-    return this.satellitesService.getMySatellites(user.sub);
+  getMySatellites(@CurrentUser() user: { id: string }) {
+    return this.satellitesService.getMySatellites(user.id);
   }
 
   @Get('user/:userId')
@@ -42,7 +42,7 @@ export class SatellitesController {
   @ApiParam({ name: 'id', description: '수정할 Satellite ID' })
   @ApiResponse({ status: 200, description: '수정 성공' })
   @ApiResponse({ status: 404, description: 'Satellite을 찾을 수 없음' })
-  update(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: UpdateSatelliteDto) {
-    return this.satellitesService.update(user.sub, id, dto);
+  update(@CurrentUser() user: { id: string }, @Param('id') id: string, @Body() dto: UpdateSatelliteDto) {
+    return this.satellitesService.update(user.id, id, dto);
   }
 }
