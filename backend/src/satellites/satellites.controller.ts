@@ -28,13 +28,13 @@ export class SatellitesController {
     return this.satellitesService.getMySatellites(user.id);
   }
 
-  @Get('user/:userId')
+  @Get('user/:username')
   @ApiOperation({ summary: '특정 유저의 Satellite 목록' })
-  @ApiParam({ name: 'userId', description: '조회할 유저 ID' })
+  @ApiParam({ name: 'username', description: '조회할 유저 username' })
   @ApiResponse({ status: 200, description: 'Satellite 목록' })
   @ApiResponse({ status: 404, description: '유저를 찾을 수 없음' })
-  getUserSatellites(@Param('userId') userId: string) {
-    return this.satellitesService.getUserSatellites(userId);
+  getUserSatellites(@Param('username') username: string) {
+    return this.satellitesService.getUserSatellites(username);
   }
 
   @Delete(':id')

@@ -74,16 +74,16 @@ export class SatellitesService {
     }));
   }
 
-  async getUserSatellites(userId: string) {
+  async getUserSatellites(username: string) {
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { username },
     });
     if (!user) {
       throw new NotFoundException('해당 유저를 찾을 수 없습니다');
     }
 
     const satellites = await this.prisma.satellite.findMany({
-      where: { ownerId: userId },
+      where: { ownerId: user.id },
       include: { song: true },
       orderBy: { createdAt: 'desc' },
     });
