@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@n
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SongsService } from './songs.service';
 import { RecommendService } from './recommend.service';
+import { SongVectorBatchService } from './song-vector-batch.service';
 import { JwtGuard } from '../auth/guard/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ArchiveSongDto } from './dto/archive-song.dto';
@@ -12,6 +13,7 @@ export class SongsController {
   constructor(
     private songsService: SongsService,
     private recommendService: RecommendService,
+    private songVectorBatchService: SongVectorBatchService,
   ) {}
 
   @Get('recommend')
@@ -48,6 +50,15 @@ export class SongsController {
   @ApiResponse({ status: 200, description: '저장한 곡 목록' })
   getMySongs(@CurrentUser() user: { id: string }) {
     return this.songsService.getMySongs(user.id);
+  }
+
+  @Post('fill-covers')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'coverUrl 없는 곡 iTunes에서 일괄 채우기' })
+  @ApiResponse({ status: 201, description: '수동 트리거 완료' })
+  fillCovers() {
+    return this.songVectorBatchService.fillMissingCoverUrls();
   }
 
   @Delete('my/:id')
