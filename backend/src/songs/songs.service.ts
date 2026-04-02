@@ -77,6 +77,7 @@ export class SongsService {
           title: result.title,
           artist: result.artist,
           coverUrl: result.coverUrl,
+          previewUrl: result.previewUrl ?? null,
         },
       });
     }
@@ -97,6 +98,7 @@ export class SongsService {
           title: dto.title,
           artist: dto.artist,
           coverUrl: dto.coverUrl,
+          previewUrl: dto.previewUrl ?? null,
           songVector: vector,
           genreTags: tags,
         },
@@ -107,7 +109,7 @@ export class SongsService {
 
       song = await this.prisma.song.update({
         where: { id: song.id },
-        data: { songVector: vector, genreTags: tags },
+        data: { songVector: vector, genreTags: tags, previewUrl: dto.previewUrl ?? null },
       });
     }
 

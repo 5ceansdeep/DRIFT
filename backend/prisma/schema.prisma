@@ -29,6 +29,7 @@ model Song {
   title      String
   artist     String
   coverUrl   String?  @map("cover_url")
+  previewUrl String?  @map("preview_url")
   genreTags  String[] @default([]) @map("genre_tags")
   songVector Float[]  @default([]) @map("song_vector")
   coordX     Float?   @map("coord_x")

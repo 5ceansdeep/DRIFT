@@ -69,6 +69,7 @@ export class RecommendService {
       title: song.title,
       artist: song.artist,
       coverUrl: song.coverUrl,
+      previewUrl: song.previewUrl,
       genreTags: song.genreTags,
       similarity: Math.round(similarity * 1000) / 1000,
     };
