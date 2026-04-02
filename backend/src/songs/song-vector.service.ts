@@ -194,7 +194,7 @@ export class SongVectorService {
   async generateSongVector(title: string, artist: string): Promise<{ vector: number[]; tags: string[] }> {
     const tags = await this.fetchTags(title, artist);
     const vector = this.tagsToVector(tags);
-    const tagNames = tags.map((t) => t.name);
+    const tagNames = [...new Set(tags.map((t) => t.name))];
 
     return { vector, tags: tagNames };
   }
