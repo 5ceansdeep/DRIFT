@@ -101,6 +101,20 @@ export class SatellitesService {
     }));
   }
 
+  async remove(userId: string, satelliteId: string) {
+    const satellite = await this.prisma.satellite.findFirst({
+      where: { id: satelliteId, ownerId: userId },
+    });
+
+    if (!satellite) {
+      throw new NotFoundException('해당 Satellite을 찾을 수 없습니다');
+    }
+
+    await this.prisma.satellite.delete({ where: { id: satelliteId } });
+
+    return { message: 'Satellite이 삭제되었습니다' };
+  }
+
   async update(userId: string, satelliteId: string, dto: UpdateSatelliteDto) {
     const satellite = await this.prisma.satellite.findFirst({
       where: { id: satelliteId, ownerId: userId },

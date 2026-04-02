@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SatellitesService } from './satellites.service';
 import { JwtGuard } from '../auth/guard/jwt.guard';
@@ -35,6 +35,15 @@ export class SatellitesController {
   @ApiResponse({ status: 404, description: '유저를 찾을 수 없음' })
   getUserSatellites(@Param('userId') userId: string) {
     return this.satellitesService.getUserSatellites(userId);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Satellite 삭제' })
+  @ApiParam({ name: 'id', description: '삭제할 Satellite ID' })
+  @ApiResponse({ status: 200, description: '삭제 성공' })
+  @ApiResponse({ status: 404, description: 'Satellite을 찾을 수 없음' })
+  remove(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+    return this.satellitesService.remove(user.id, id);
   }
 
   @Patch(':id')
