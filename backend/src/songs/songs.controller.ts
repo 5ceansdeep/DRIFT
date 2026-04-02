@@ -61,6 +61,15 @@ export class SongsController {
     return this.songVectorBatchService.fillMissingCoverUrls();
   }
 
+  @Post('my/:id/play')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '재생 횟수 증가' })
+  @ApiResponse({ status: 201, description: '재생 횟수 반환' })
+  play(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+    return this.songsService.incrementPlayCount(user.id, id);
+  }
+
   @Delete('my/:id')
   @UseGuards(JwtGuard)
   @ApiBearerAuth()

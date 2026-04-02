@@ -151,6 +151,23 @@ export class SongsService {
     }));
   }
 
+  async incrementPlayCount(userId: string, userSongId: string) {
+    const userSong = await this.prisma.userSong.findFirst({
+      where: { id: userSongId, userId },
+    });
+
+    if (!userSong) {
+      throw new NotFoundException('아카이브에서 해당 곡을 찾을 수 없습니다');
+    }
+
+    const updated = await this.prisma.userSong.update({
+      where: { id: userSongId },
+      data: { playCount: { increment: 1 } },
+    });
+
+    return { playCount: updated.playCount };
+  }
+
   async removeFromArchive(userId: string, userSongId: string) {
     const userSong = await this.prisma.userSong.findFirst({
       where: { id: userSongId, userId },
