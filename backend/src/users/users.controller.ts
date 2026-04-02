@@ -1,7 +1,8 @@
-import { Controller, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtGuard } from '../auth/guard/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
@@ -22,6 +23,18 @@ export class UsersController {
   @ApiOperation({ summary: '내 프로필 수정 (username)' })
   updateMe(@CurrentUser() user: { id: string }, @Body() dto: UpdateUserDto) {
     return this.usersService.updateMe(user.id, dto);
+  }
+
+  @Patch('me/password')
+  @ApiOperation({ summary: '비밀번호 변경' })
+  changePassword(@CurrentUser() user: { id: string }, @Body() dto: ChangePasswordDto) {
+    return this.usersService.changePassword(user.id, dto);
+  }
+
+  @Delete('me')
+  @ApiOperation({ summary: '회원 탈퇴' })
+  deleteMe(@CurrentUser() user: { id: string }) {
+    return this.usersService.deleteMe(user.id);
   }
 
   @Get(':id')
