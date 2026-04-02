@@ -12,6 +12,9 @@ interface PcaModel {
 
 const MODEL_PATH = path.join(process.cwd(), 'pca_model.json');
 
+/** 동일 좌표 곡 분리용 미세 오프셋 (±0.001 범위) */
+const jitter = () => (Math.random() - 0.5) * 0.002;
+
 @Injectable()
 export class PcaService {
   private readonly logger = new Logger(PcaService.name);
@@ -50,12 +53,21 @@ export class PcaService {
     fs.writeFileSync(MODEL_PATH, JSON.stringify(this.model));
     this.logger.log(`PCA 모델 학습 완료: ${songs.length}개 곡`);
 
-    // 전체 곡 좌표 업데이트
+    // 전체 곡 좌표 업데이트 (동일 벡터 곡에 jitter 적용)
+    const coordMap = new Map<string, { x: number; y: number; z: number }>();
     for (const song of songs) {
       const [x, y, z] = this.project(song.songVector as number[]);
+      const key = `${x.toFixed(6)},${y.toFixed(6)},${z.toFixed(6)}`;
+      let coord: { x: number; y: number; z: number };
+      if (coordMap.has(key)) {
+        coord = { x: x + jitter(), y: y + jitter(), z: z + jitter() };
+      } else {
+        coordMap.set(key, { x, y, z });
+        coord = { x, y, z };
+      }
       await this.prisma.song.update({
         where: { id: song.id },
-        data: { coordX: x, coordY: y, coordZ: z },
+        data: { coordX: coord.x, coordY: coord.y, coordZ: coord.z },
       });
     }
 
