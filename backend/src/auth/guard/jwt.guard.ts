@@ -14,8 +14,8 @@ export class JwtGuard implements CanActivate {
     const token = authHeader.split(' ')[1];
 
     try {
-      const payload = jwt.verify(token, process.env.JWT_SECRET || 'drift-secret');
-      request.user = payload;
+      const payload = jwt.verify(token, process.env.JWT_SECRET || 'drift-secret') as jwt.JwtPayload;
+      request.user = { id: payload.sub };
       return true;
     } catch {
       throw new UnauthorizedException('유효하지 않은 토큰입니다');
