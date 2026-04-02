@@ -19,8 +19,8 @@ export class SongsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: '곡 추천 (별/혜성)' })
   @ApiResponse({ status: 200, description: '별(코사인 유사도 높음) + 혜성(serendipity) 추천 결과' })
-  recommend(@CurrentUser() user: any) {
-    return this.recommendService.recommend(user.sub);
+  recommend(@CurrentUser() user: { id: string }) {
+    return this.recommendService.recommend(user.id);
   }
 
   @Get('search')
@@ -37,8 +37,8 @@ export class SongsController {
   @ApiOperation({ summary: '곡을 내 아카이브에 저장' })
   @ApiResponse({ status: 201, description: '저장 성공' })
   @ApiResponse({ status: 401, description: '인증 필요' })
-  archive(@CurrentUser() user: any, @Body() dto: ArchiveSongDto) {
-    return this.songsService.archive(user.sub, dto);
+  archive(@CurrentUser() user: { id: string }, @Body() dto: ArchiveSongDto) {
+    return this.songsService.archive(user.id, dto);
   }
 
   @Get('my')
@@ -46,8 +46,8 @@ export class SongsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: '내 아카이브 곡 목록' })
   @ApiResponse({ status: 200, description: '저장한 곡 목록' })
-  getMySongs(@CurrentUser() user: any) {
-    return this.songsService.getMySongs(user.sub);
+  getMySongs(@CurrentUser() user: { id: string }) {
+    return this.songsService.getMySongs(user.id);
   }
 
   @Delete('my/:id')
@@ -56,7 +56,7 @@ export class SongsController {
   @ApiOperation({ summary: '아카이브에서 곡 삭제' })
   @ApiResponse({ status: 200, description: '삭제 성공' })
   @ApiResponse({ status: 404, description: '곡을 찾을 수 없음' })
-  remove(@CurrentUser() user: any, @Param('id') id: string) {
-    return this.songsService.removeFromArchive(user.sub, id);
+  remove(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+    return this.songsService.removeFromArchive(user.id, id);
   }
 }
