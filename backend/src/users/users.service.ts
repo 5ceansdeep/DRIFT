@@ -54,9 +54,9 @@ export class UsersService {
     return user;
   }
 
-  async getUserById(userId: string) {
+  async getUserById(username: string) {
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { username },
       select: {
         id: true,
         username: true,
@@ -102,12 +102,12 @@ export class UsersService {
     return { message: '계정이 삭제되었습니다' };
   }
 
-  async getUserSongs(userId: string) {
-    const exists = await this.prisma.user.findUnique({ where: { id: userId } });
+  async getUserSongs(username: string) {
+    const exists = await this.prisma.user.findUnique({ where: { username } });
     if (!exists) throw new NotFoundException('유저를 찾을 수 없습니다');
 
     const userSongs = await this.prisma.userSong.findMany({
-      where: { userId },
+      where: { userId: exists.id },
       include: { song: true },
       orderBy: { savedAt: 'desc' },
     });

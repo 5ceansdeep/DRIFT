@@ -37,15 +37,15 @@ export class UsersController {
     return this.usersService.deleteMe(user.id);
   }
 
-  @Get(':id')
+  @Get(':username')
   @ApiOperation({ summary: '다른 유저 프로필 조회' })
-  getUser(@Param('id') id: string) {
-    return this.usersService.getUserById(id);
+  getUser(@Param('username') username: string) {
+    return this.usersService.getUserById(username);
   }
 
-  @Get(':id/songs')
+  @Get(':username/songs')
   @ApiOperation({ summary: '다른 유저 아카이브 조회' })
-  getUserSongs(@Param('id') id: string) {
-    return this.usersService.getUserSongs(id);
+  getUserSongs(@Param('username') username: string) {
+    return this.usersService.getUserSongs(username);
   }
 }
