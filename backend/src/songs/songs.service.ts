@@ -149,6 +149,7 @@ export class SongsService {
         title: us.song.title,
         artist: us.song.artist,
         coverUrl: us.song.coverUrl,
+        previewUrl: us.song.previewUrl,
       },
     }));
   }

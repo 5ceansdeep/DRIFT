@@ -50,6 +50,7 @@ export class SatellitesService {
         title: song.title,
         artist: song.artist,
         coverUrl: song.coverUrl,
+        previewUrl: song.previewUrl,
       },
     };
   }
@@ -70,6 +71,7 @@ export class SatellitesService {
         title: s.song.title,
         artist: s.song.artist,
         coverUrl: s.song.coverUrl,
+        previewUrl: s.song.previewUrl,
       },
     }));
   }
@@ -97,6 +99,7 @@ export class SatellitesService {
         title: s.song.title,
         artist: s.song.artist,
         coverUrl: s.song.coverUrl,
+        previewUrl: s.song.previewUrl,
       },
     }));
   }
@@ -161,6 +164,7 @@ export class SatellitesService {
         title: updated.song.title,
         artist: updated.song.artist,
         coverUrl: updated.song.coverUrl,
+        previewUrl: updated.song.previewUrl,
       },
     };
   }

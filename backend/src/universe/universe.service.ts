@@ -17,6 +17,7 @@ export class UniverseService {
         title: true,
         artist: true,
         coverUrl: true,
+        previewUrl: true,
         genreTags: true,
         coordX: true,
         coordY: true,
@@ -29,6 +30,7 @@ export class UniverseService {
       title: s.title,
       artist: s.artist,
       coverUrl: s.coverUrl,
+      previewUrl: s.previewUrl,
       genreTags: s.genreTags,
       coord: { x: s.coordX, y: s.coordY, z: s.coordZ },
     }));
