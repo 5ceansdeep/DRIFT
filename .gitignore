@@ -8,3 +8,6 @@ npm-debug.log*
 Thumbs.db
 .vscode
 backend/pca_model.json
+CLAUDE.md
+backend/generated/
+.claude/settings.local.json
