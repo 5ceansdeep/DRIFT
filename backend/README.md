@@ -21,14 +21,27 @@ npm install
 npm run dev        # 개발 서버 (watch mode)
 ```
 
-Swagger UI: `http://localhost:3000/api`
+**PostgreSQL을 따로 설치할 필요 없습니다.** `npm run dev` 실행 시 `predev` 훅이
+`scripts/setup-db.js`를 실행해서 `prisma dev`(Prisma CLI가 관리하는 로컬 DB 서버)를
+자동으로 띄우고, `.env`가 없으면 새로 만들고, 마이그레이션까지 적용합니다.
+DB만 따로 띄우거나 멈추고 싶으면:
+
+```bash
+npm run db:start   # 로컬 DB 기동 + .env 반영 + 마이그레이션 (predev와 동일)
+npm run db:stop    # 로컬 DB 정지
+```
+
+Swagger UI: `http://localhost:3001/api-docs`
 
 ## 환경변수 (.env)
 
+`.env`가 없으면 첫 `npm run dev` 실행 시 `.env.example` 기반으로 자동 생성됩니다
+(`DATABASE_URL`은 로컬 DB 기동 결과로 자동 채워지고, `JWT_SECRET`도 랜덤 생성됨).
+
 ```
-DATABASE_URL=
-JWT_SECRET=
-Lastfm_API_KEY=
+DATABASE_URL=        # setup-db.js가 자동으로 채움
+JWT_SECRET=           # 비어있으면 자동 생성
+Lastfm_API_KEY=       # https://www.last.fm/api/account/create 에서 발급 (선택)
 ```
 
 ## 프로젝트 구조
