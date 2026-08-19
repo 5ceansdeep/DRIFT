@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
-const STAR_COUNT = 5;
+const STAR_COUNT = 15;
 const COMET_COUNT = 3;
 const STAR_THRESHOLD = 0.5;
 const COMET_MIN = 0.2;
