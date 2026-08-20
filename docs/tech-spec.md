@@ -605,9 +605,12 @@ export interface TasteTwinData {
 - [ ] 1,000개 이상 노드 기준 60 FPS 실측 검증 (브라우저 프로파일링 필요)
 
 ### Phase 2 — Spatial Audio & Interaction Systems
-- [ ] Web Audio API `PannerNode` HRTF 공간 음향 엔진 구성
-- [ ] `VolumeIntersection` 알고리즘: 3D 마우스 드래그 볼륨 크기 내 포함 곡 필터링
-- [ ] `SectorVolumeBox` HTML 3D 프로필 메타 라벨 및 아카이브 API 통합
+- [x] Web Audio API `PannerNode` HRTF 공간 음향 엔진 구성 (`engine/SpatialAudioEngine.ts` + `AudioController.tsx`, 커밋 `567a550`)
+- [x] `VolumeIntersection` 알고리즘 + 마우스 드래그로 3D 볼륨 지정 (`SectorDrawController.tsx`, 화면 투영 방식)
+- [x] `SectorVolumeBox` HTML 3D 프로필 메타 라벨 (아카이브 API 연동은 미완 — 현재 Zustand client-side에만 저장, 새로고침하면 사라짐)
+- [ ] Sector 영속화용 백엔드 API (`POST/GET /sectors` 또는 NestJS 엔드포인트)
+- [ ] `SectorCreatorToolbar` 정식 UI (지금은 최소 토글 버튼만 있는 `SectorToolbar.tsx`)
+- [ ] 실제 오디오 파일 (지금은 `/audio/sample.mp3`가 존재하지 않아 재생은 조용히 실패함)
 
 ### Phase 3 — Twin Overlay & Visual Polish
 - [ ] `TwinOverlayScene` 구현 (사용자: Cyan 와이어프레임 vs Twin: Slate White 와이어프레임)
