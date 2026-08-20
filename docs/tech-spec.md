@@ -69,6 +69,9 @@ frontend/
 
 이 저장소에서는 `components/3d/`를 이미 `frontend/components/3d/`로 시작했다 ([InstancedStars.tsx](../frontend/components/3d/InstancedStars.tsx) 프로토타입 존재).
 
+**라우트 배치**: 본 스펙의 Galaxy/Sector/Twin 뷰는 `/galaxy` 같은 새 라우트로 분리 구축한다.
+기존 `frontend/app/page.tsx`(`/`)의 DRIFT v4 목업은 그대로 유지.
+
 ## 2. 데이터베이스 & API 데이터 구조
 
 ### 2.1 참고용 원본 스펙 스키마 (PostgreSQL)

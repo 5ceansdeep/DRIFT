@@ -149,6 +149,6 @@
 ## 7. 이 저장소 현재 상태와의 정합성 메모
 
 - `frontend/`는 Next.js App Router로 이미 세팅됨, Vite 아님 (합의 완료).
-- `frontend/app/page.tsx`(`/`)는 별도의 정적 DRIFT v4 목업(Landing/Explore/Archive/Add Track/Social/Settings, vanilla Three.js)이 이미 포팅되어 있음 — 본 스펙의 Galaxy/Sector/Twin 3뷰 체계와는 다른 UI. 이 스펙 기능을 어느 라우트에 붙일지(`/`를 교체할지, `/galaxy` 같은 별도 라우트로 갈지)는 착수 시 결정 필요.
+- `frontend/app/page.tsx`(`/`)는 별도의 정적 DRIFT v4 목업(Landing/Explore/Archive/Add Track/Social/Settings, vanilla Three.js)이 이미 포팅되어 있음 — 본 스펙의 Galaxy/Sector/Twin 3뷰 체계와는 다른 UI. **결정: 본 스펙 기능은 `/galaxy` 같은 새 라우트로 분리 구축, 기존 `/` 목업은 유지하며 병행 개발.**
 - `frontend/components/3d/InstancedStars.tsx` + `frontend/app/prototype/page.tsx`: 큐브 1,000개 InstancedMesh 호버 프로토타입 존재 (본 스펙 3.2의 원형). `Bvh` 래퍼는 `InstancedMesh`와의 호환성 이슈로 현재 제외된 상태.
 - backend는 NestJS + Prisma + PostgreSQL, 75차원 벡터를 Postgres 배열 컬럼에 저장 (Vector DB 미도입). PCA는 `backend/umap/*.py` 오프라인 스크립트.
