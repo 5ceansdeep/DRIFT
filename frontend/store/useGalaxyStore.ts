@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import { TrackNode, ViewMode, SavedSector } from "@/types";
 
+export interface ScreenRect {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
 interface GalaxyState {
   viewMode: ViewMode;
   nodes: TrackNode[];
@@ -8,6 +15,9 @@ interface GalaxyState {
   selectedTrackId: string | null;
   savedSectors: SavedSector[];
   isWarping: boolean;
+  // Phase 2: Sector 볼륨 지정 모드
+  isSectorDrawMode: boolean;
+  dragRectScreen: ScreenRect | null;
 
   setViewMode: (mode: ViewMode) => void;
   setNodes: (nodes: TrackNode[]) => void;
@@ -15,6 +25,8 @@ interface GalaxyState {
   setSelectedTrackId: (id: string | null) => void;
   addSector: (sector: SavedSector) => void;
   triggerWarp: (isWarping: boolean) => void;
+  toggleSectorDrawMode: () => void;
+  setDragRectScreen: (rect: ScreenRect | null) => void;
 }
 
 export const useGalaxyStore = create<GalaxyState>((set) => ({
@@ -24,6 +36,8 @@ export const useGalaxyStore = create<GalaxyState>((set) => ({
   selectedTrackId: null,
   savedSectors: [],
   isWarping: false,
+  isSectorDrawMode: false,
+  dragRectScreen: null,
 
   setViewMode: (mode) => set({ viewMode: mode }),
   setNodes: (nodes) => set({ nodes }),
@@ -32,4 +46,7 @@ export const useGalaxyStore = create<GalaxyState>((set) => ({
   addSector: (sector) =>
     set((state) => ({ savedSectors: [...state.savedSectors, sector] })),
   triggerWarp: (isWarping) => set({ isWarping }),
+  toggleSectorDrawMode: () =>
+    set((state) => ({ isSectorDrawMode: !state.isSectorDrawMode, dragRectScreen: null })),
+  setDragRectScreen: (rect) => set({ dragRectScreen: rect }),
 }));

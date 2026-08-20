@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { InstancedMesh } from "three";
 import type { ThreeEvent } from "@react-three/fiber";
@@ -10,31 +10,33 @@ const SPREAD = 60;
 const BASE_COLOR = new THREE.Color("#0a0f0c");
 const HOVER_COLOR = new THREE.Color("#ff6a3d");
 
+// 모듈 로드 시 1회만 계산 — 컴포넌트 렌더 함수 안에서 Math.random()을
+// 직접 호출하면 impure render로 lint 에러(react-hooks/purity)가 난다.
+function generatePositions(): THREE.Vector3[] {
+  const arr: THREE.Vector3[] = [];
+  for (let i = 0; i < COUNT; i++) {
+    arr.push(
+      new THREE.Vector3(
+        (Math.random() - 0.5) * SPREAD,
+        (Math.random() - 0.5) * SPREAD,
+        (Math.random() - 0.5) * SPREAD
+      )
+    );
+  }
+  return arr;
+}
+const STATIC_POSITIONS = generatePositions();
+
 export default function InstancedStars() {
   const meshRef = useRef<InstancedMesh>(null!);
   const hoveredId = useRef<number | null>(null);
-
-  // 1,000개 큐브의 임의 3D 좌표 (컴포넌트 생애주기 동안 고정)
-  const positions = useMemo(() => {
-    const arr: THREE.Vector3[] = [];
-    for (let i = 0; i < COUNT; i++) {
-      arr.push(
-        new THREE.Vector3(
-          (Math.random() - 0.5) * SPREAD,
-          (Math.random() - 0.5) * SPREAD,
-          (Math.random() - 0.5) * SPREAD
-        )
-      );
-    }
-    return arr;
-  }, []);
 
   // 최초 1회: 인스턴스별 위치 행렬 + 기본 색상 세팅
   useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
     const dummy = new THREE.Object3D();
-    positions.forEach((pos, i) => {
+    STATIC_POSITIONS.forEach((pos, i) => {
       dummy.position.copy(pos);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
@@ -42,7 +44,7 @@ export default function InstancedStars() {
     });
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  }, [positions]);
+  }, []);
 
   const setInstanceColor = (id: number, color: THREE.Color) => {
     const mesh = meshRef.current;

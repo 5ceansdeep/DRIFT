@@ -11,3 +11,4 @@ backend/pca_model.json
 CLAUDE.md
 backend/generated/
 .claude/settings.local.json
+*.tsbuildinfo
