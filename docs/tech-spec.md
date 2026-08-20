@@ -625,7 +625,7 @@ export interface TasteTwinData {
 - [ ] 실제 오디오 파일 (지금은 `/audio/sample.mp3`가 존재하지 않아 재생은 조용히 실패함)
 
 ### Phase 3 — Twin Scene & Visual Polish
-- [ ] **(개정)** `/twin` 라우트에 `TwinScene.tsx` 구현 — 1:1 오버레이 아님, Twin 유저 우주를 단독 렌더링. Gap Node는 `#FF0055` + `TARGET DISCOVERY` 라벨
+- [x] **(개정)** `/twin` 라우트에 `TwinScene.tsx` 구현 — 1:1 오버레이 아님, Twin 유저 우주를 단독 렌더링(mock `app/api/twin/route.ts`, `useTwinStore.ts`, `TwinStars.tsx`, `TwinCanvasContainer.tsx`, `TwinHud.tsx`). Gap Node는 `#FF0055` + `TARGET DISCOVERY` `Html` 라벨로 표기, 노드 크기도 1.4배 확대해 시각적으로 강조. 클릭 시 Fly-To 카메라 이동은 Galaxy와 동일한 패턴(RedshiftEngine 보정 좌표 기준)으로 구현
 - [ ] `/explore` 라우트: 코사인 유사도 High/Mid/Low 존 분리 + 워프홀 스플라인 탐색
 - [ ] `SerendipityComet` 3차원 스플라인 애니메이션 및 클릭 이벤트를 통한 Gap Node 검색 처리
 - [ ] Post-processing(Bloom, DOF, ColorInvert) 통합으로 최종 전역 연구실 비주얼 완성
