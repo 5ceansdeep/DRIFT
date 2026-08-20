@@ -74,7 +74,7 @@ frontend/
 └── types/index.ts
 ```
 
-이 저장소에서는 `components/3d/`를 이미 `frontend/components/3d/`로 시작했다 ([InstancedStars.tsx](../frontend/components/3d/objects/InstancedStars.tsx) — Galaxy 실사용 컴포넌트, `frontend/components/3d/InstancedStars.tsx`는 `/prototype` 검증용 별개 파일).
+이 저장소에서는 `components/3d/`를 이미 `frontend/components/3d/`로 시작했다 ([InstancedStars.tsx](../frontend/components/3d/objects/InstancedStars.tsx) — Galaxy 실사용 컴포넌트). `/prototype` 검증용 별개 파일(`frontend/components/3d/InstancedStars.tsx`)은 Galaxy/Explore/Twin 3뷰가 자리잡은 뒤 용도가 끝나 라우트째 삭제했다 (2026-08-20).
 
 **라우트 배치 (개정됨)**: `ViewMode` 단일 캔버스 스위칭은 폐기. `/galaxy`(구현됨) · `/explore`(스텁) · `/twin`(스텁) 독립 라우트로 분리 구축한다.
 기존 `frontend/app/page.tsx`(`/`)의 DRIFT v4 목업은 그대로 유지.
@@ -240,7 +240,7 @@ export default function CanvasContainer() {
 }
 ```
 
-> ⚠️ `frontend/app/prototype/page.tsx` 프로토타입은 이 스펙보다 앞서 `<Bvh>`를 뺀 상태다 (drei 10.7.8 + InstancedMesh 조합에서 화면 멈춤 이슈 확인됨 — [git log](../frontend) 커밋 `c539852` 근방 참고). 본 기능 구현 시 `Bvh` 재도입 여부는 노드 수 규모를 보고 별도 검증 필요.
+> ⚠️ (구) `frontend/app/prototype/page.tsx` 프로토타입은 이 스펙보다 앞서 `<Bvh>`를 뺀 상태였다 (drei 10.7.8 + InstancedMesh 조합에서 화면 멈춤 이슈 확인됨). Galaxy 실사용 컴포넌트(`objects/InstancedStars.tsx`)도 같은 이유로 `Bvh` 없이 유지 중 — 본 기능 확장 시 `Bvh` 재도입 여부는 노드 수 규모를 보고 별도 검증 필요.
 
 ### 3.2 [Mode 1] Galaxy View & InstancedMesh 가속 렌더링
 
@@ -627,6 +627,7 @@ export interface TasteTwinData {
 ### Phase 3 — Twin Scene & Visual Polish
 - [x] **(개정)** `/twin` 라우트에 `TwinScene.tsx` 구현 — 1:1 오버레이 아님, Twin 유저 우주를 단독 렌더링(mock `app/api/twin/route.ts`, `useTwinStore.ts`, `TwinStars.tsx`, `TwinCanvasContainer.tsx`, `TwinHud.tsx`). Gap Node는 `#FF0055` + `TARGET DISCOVERY` `Html` 라벨로 표기, 노드 크기도 1.4배 확대해 시각적으로 강조. 클릭 시 Fly-To 카메라 이동은 Galaxy와 동일한 패턴(RedshiftEngine 보정 좌표 기준)으로 구현
 - [x] `/explore` 라우트: 코사인 유사도 High/Mid/Low 존 분리(`engine/SimilarityZones.ts` — 반지름 방사형 매핑 + 구역 판별) + `SimilarityZoneShells.tsx`(경계 와이어프레임 구 + 라벨), mock `app/api/explore/route.ts`(600 노드), `useExploreStore.ts`
-- [x] `SerendipityComet` 3차원 스플라인 애니메이션(`SerendipityComet.tsx`, HIGH/MID 경계 0.3~0.5 유사도 구간 순찰) 및 클릭 이벤트로 경계 트랙 무작위 포착 → 선택/Fly-To
-- [x] 대척점 블랙홀 워프 — HUD 버튼 클릭 시 유사도 -0.7 미만 노드로 Fly-To + `TacticalEffects.tsx`(`@react-three/postprocessing`의 `ColorAverage`)로 워프 중에만 흑백 반전, 전환 종료 후 자동 해제
+- [x] `SerendipityComet` 3차원 스플라인 애니메이션(`SerendipityComet.tsx`, HIGH/MID 경계 0.3~0.5 유사도 구간 순찰) 및 클릭 이벤트로 경계 트랙 무작위 포착 → 선택/Fly-To. 실 데이터라 후보가 적어 그 구간이 비어있을 땐 유사도 0.4에 가장 가까운 곡으로 대체
+- [x] 대척점 블랙홀 워프 — HUD 버튼 클릭 시 유사도 하위 10% 중 무작위 노드로 Fly-To(절대 임계값 `-0.7` 대신 상대 퍼센타일 — 실 코사인 유사도는 태그가 전부 0 이상이라 사실상 음수가 안 나옴) + `TacticalEffects.tsx`(`@react-three/postprocessing`의 `ColorAverage`)로 워프 중에만 흑백 반전, 전환 종료 후 자동 해제
+- [x] **실 데이터 연동** — `app/api/explore/route.ts`가 `backend GET /songs/recommend/full`(신규, 임계값 없이 코사인 유사도 전체 반환)을 우선 시도, 실패/후보 없음 시 mock 600개로 폴백. `RecommendService.recommendFull()` 추가. HUD에 실제 MATCH % + 앨범 커버 노출
 - [ ] Bloom/DOF 등 상시 후처리 비주얼 폴리시 (워프 전용 `ColorAverage`만 우선 적용, 나머지는 추후 성능 검증 후 추가)
