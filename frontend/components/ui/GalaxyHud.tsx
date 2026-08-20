@@ -25,16 +25,26 @@ export default function GalaxyHud() {
           <div className="mt-1 text-black">곡을 클릭해서 구역에 담으세요 (다시 클릭하면 뺌)</div>
         )}
       </div>
-      <div className="absolute bottom-4 right-4 text-right">
-        {hovered && (
-          <div className="opacity-80">
-            HOVER · {hovered.title} — {hovered.artist}
-          </div>
-        )}
-        {selected && (
-          <div className="mt-1 font-bold">
-            SELECTED · {selected.title} — {selected.artist}
-          </div>
+      <div className="absolute bottom-4 right-4 flex items-end gap-2 text-right">
+        <div>
+          {hovered && (
+            <div className="opacity-80">
+              HOVER · {hovered.title} — {hovered.artist}
+            </div>
+          )}
+          {selected && (
+            <div className="mt-1 font-bold">
+              SELECTED · {selected.title} — {selected.artist} ({selected.genre})
+            </div>
+          )}
+        </div>
+        {(selected ?? hovered)?.coverUrl && (
+          // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지, next/image 도메인 설정 전까지 임시
+          <img
+            src={(selected ?? hovered)!.coverUrl!}
+            alt=""
+            className="h-10 w-10 border border-black object-cover"
+          />
         )}
       </div>
 

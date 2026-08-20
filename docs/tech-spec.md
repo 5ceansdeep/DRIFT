@@ -612,7 +612,7 @@ export interface TasteTwinData {
 - [x] `RedshiftEngine` 개발 및 반감기 기반 위치/색상/크기 보간 파이프라인 연결
 - [x] **(개정)** 단일 캔버스 `ViewMode`(GALAXY/SECTOR/TWIN) 스위칭 폐기 → `/galaxy`, `/explore`, `/twin` 독립 라우트로 분리. `/explore`, `/twin`은 스텁 페이지만 존재 (`app/explore/page.tsx`, `app/twin/page.tsx`)
 - [x] **(개정)** 키보드(WASD) 항해는 스코프에서 완전히 제외 — 마우스 `CameraControls`만 사용. 노드 클릭 시 `setLookAt`으로 Fly-To 포커스 이동 구현 (`CanvasContainer.tsx`)
-- [ ] 실 데이터 연동 (`backend GET /universe/stars`, 로그인 플로우 + PCA refit 필요)
+- [x] **실 데이터 연동 1단계** — `app/api/galaxy/route.ts`가 `backend GET /universe/stars`를 우선 시도(백엔드 다운/좌표 없음 시 mock 800개로 자동 폴백). 로그인 UI가 아직 없어 `frontend/lib/driftBackend.ts`가 데모 계정(`.env.local`, gitignored)으로 서버사이드 로그인 후 토큰 재사용. iTunes 검색 + Last.fm/iTunes 장르 태그로 실제 곡 15개 아카이브 + `POST /universe/refit` 실행 완료, `/galaxy`에서 실제 앨범커버·장르·미리듣기·제목·가수 확인. TODO: 정식 로그인 플로우, `UserSong.savedAt` 기반 `lastPlayedAt` 연동(현재는 전부 "방금 재생"으로 고정), 곡 수 늘어나면 `POSITION_SCALE` 재조정
 - [ ] 1,000개 이상 노드 기준 60 FPS 실측 검증 (브라우저 프로파일링 필요)
 
 ### Phase 2 — Spatial Audio & Interaction Systems

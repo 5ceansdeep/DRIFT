@@ -11,6 +11,7 @@ export interface TrackNode {
   audioUrl: string;
   genre: string;
   isGapNode?: boolean;
+  coverUrl?: string | null; // 실 데이터 연동(backend Song.coverUrl) 시 채워짐, mock 데이터엔 없음
 }
 
 export interface SavedSector {
