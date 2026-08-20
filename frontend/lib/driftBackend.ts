@@ -1,9 +1,9 @@
 // 서버 전용 모듈 — Route Handler에서만 import할 것 (클라이언트 컴포넌트에서
 // import하면 DRIFT_DEMO_PASSWORD가 브라우저 번들에 노출될 수 있다).
 // NestJS 백엔드(GET /universe/stars) 서버사이드 프록시용 헬퍼.
-// 프론트에 아직 로그인 UI가 없어서, 데모 계정으로 대신 로그인해 토큰을 얻는다.
-// docs/tech-spec.md 2.3 "실 데이터 연동" 항목의 첫 단계 — 실제 로그인 플로우가
-// 붙기 전까지의 임시 다리(bridge) 역할.
+// 실제 로그인한 유저가 있으면 그 토큰(overrideToken, 클라이언트가
+// Authorization 헤더로 넘겨준 값)을 그대로 쓰고, 없으면 데모 계정으로
+// 대신 로그인해 폴백한다 (로그인 안 하고도 /galaxy·/explore를 구경할 수 있게).
 const BACKEND_URL = process.env.DRIFT_BACKEND_URL ?? "http://localhost:3001";
 
 interface BackendStar {
@@ -41,24 +41,30 @@ async function login(): Promise<string> {
   return cachedToken;
 }
 
-async function authedFetch(path: string, retried = false): Promise<Response> {
-  const token = cachedToken ?? (await login());
+async function authedFetch(
+  path: string,
+  overrideToken?: string,
+  retried = false
+): Promise<Response> {
+  const token = overrideToken ?? cachedToken ?? (await login());
   const res = await fetch(`${BACKEND_URL}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
     cache: "no-store",
   });
 
-  // 캐시된 토큰이 만료됐으면 한 번 재로그인 후 재시도
-  if (res.status === 401 && !retried) {
+  // 데모 계정 캐시 토큰이 만료됐으면 한 번 재로그인 후 재시도.
+  // overrideToken(실 유저 토큰)은 서버가 대신 갱신해줄 수 없으니 재시도하지 않는다 —
+  // 401이면 그대로 호출부에 돌려줘서 mock 폴백 등으로 처리하게 한다.
+  if (res.status === 401 && !retried && !overrideToken) {
     cachedToken = null;
-    return authedFetch(path, true);
+    return authedFetch(path, undefined, true);
   }
   return res;
 }
 
 /** GET /universe/stars — 좌표(coordX/Y/Z)가 계산된 곡만 반환된다 (PCA refit 필요). */
-export async function fetchBackendStars(): Promise<BackendStar[]> {
-  const res = await authedFetch("/universe/stars");
+export async function fetchBackendStars(overrideToken?: string): Promise<BackendStar[]> {
+  const res = await authedFetch("/universe/stars", overrideToken);
   if (!res.ok) throw new Error(`/universe/stars 조회 실패: ${res.status}`);
   return res.json();
 }
@@ -77,8 +83,10 @@ export interface RecommendCandidate {
  * GET /songs/recommend/full — 아카이브 안 한 곡 전체 + 실제 코사인 유사도.
  * Explore 뷰의 HIGH/MID/LOW 존을 채우는 데 쓰인다 (mock 랜덤 유사도 대체).
  */
-export async function fetchRecommendCandidates(): Promise<RecommendCandidate[]> {
-  const res = await authedFetch("/songs/recommend/full");
+export async function fetchRecommendCandidates(
+  overrideToken?: string
+): Promise<RecommendCandidate[]> {
+  const res = await authedFetch("/songs/recommend/full", overrideToken);
   if (!res.ok) throw new Error(`/songs/recommend/full 조회 실패: ${res.status}`);
   const data = (await res.json()) as { songs: RecommendCandidate[] };
   return data.songs;

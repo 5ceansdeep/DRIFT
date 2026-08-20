@@ -33,9 +33,12 @@ function generateMockNodes(): TrackNode[] {
   }));
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = request.headers.get("authorization");
+  const overrideToken = auth?.startsWith("Bearer ") ? auth.slice(7) : undefined;
+
   try {
-    const stars = await fetchBackendStars();
+    const stars = await fetchBackendStars(overrideToken);
     if (stars.length === 0) throw new Error("좌표가 준비된 곡 없음 (POST /universe/refit 필요)");
 
     const nodes: TrackNode[] = stars.map((s) => ({

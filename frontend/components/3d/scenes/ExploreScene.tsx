@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useExploreStore } from "@/store/useExploreStore";
 import { prefetchCovers } from "@/lib/itunesImage";
+import { authHeader } from "@/lib/authClient";
 import ExploreStars from "../objects/ExploreStars";
 import SimilarityZoneShells from "../objects/SimilarityZoneShells";
 import SerendipityComet from "../objects/SerendipityComet";
@@ -15,7 +16,7 @@ export default function ExploreScene() {
 
   useEffect(() => {
     if (nodeCount > 0) return;
-    fetch("/api/explore")
+    fetch("/api/explore", { headers: authHeader() })
       .then((res) => res.json())
       .then((data) => {
         setNodes(data.nodes);

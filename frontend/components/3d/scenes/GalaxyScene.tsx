@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useGalaxyStore } from "@/store/useGalaxyStore";
 import { prefetchCovers } from "@/lib/itunesImage";
+import { authHeader } from "@/lib/authClient";
 import InstancedStars from "../objects/InstancedStars";
 import type { TrackNode } from "@/types";
 
@@ -13,7 +14,7 @@ export default function GalaxyScene() {
 
   useEffect(() => {
     if (nodeCount > 0) return;
-    fetch("/api/galaxy")
+    fetch("/api/galaxy", { headers: authHeader() })
       .then((res) => res.json())
       .then((data) => {
         setNodes(data.nodes);

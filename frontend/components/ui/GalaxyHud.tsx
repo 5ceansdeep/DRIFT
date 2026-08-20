@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useGalaxyStore } from "@/store/useGalaxyStore";
 import SectorToolbar from "./SectorToolbar";
 import TrackDetailPanel from "./TrackDetailPanel";
+import ArchiveSearch from "./ArchiveSearch";
 import { iTunesCoverUrl } from "@/lib/itunesImage";
 
 // Phase 1 검증용 최소 HUD. HeaderNav 정식 컴포넌트는 추후 교체.
@@ -46,6 +47,7 @@ export default function GalaxyHud() {
 
       <SectorToolbar />
       <TrackDetailPanel />
+      <ArchiveSearch />
     </div>
   );
 }

@@ -229,10 +229,57 @@ function switchPanel(name, tabEl) {
 }
 
 /* ═══════════════════════════════════
-   MISC — 로그인/회원가입 토글 (랜딩 auth-box)
+   AUTH — 로그인/회원가입 (랜딩 auth-box, 실제 백엔드 호출)
+   React 3D 라우트(lib/authClient.ts)와 같은 localStorage 키를 써서
+   로그인 상태를 공유한다.
 ═══════════════════════════════════ */
+let authMode = 'login';
+const DRIFT_BACKEND_URL = 'http://localhost:3001';
+
 function authSwitch(m){
+  authMode = m;
   document.getElementById('at-l').className='auth-t'+(m==='login'?' on':'');
   document.getElementById('at-s').className='auth-t'+(m==='signup'?' on':'');
   document.getElementById('auth-name-row').style.display=m==='signup'?'block':'none';
+  document.getElementById('auth-error').style.display='none';
+}
+
+function showAuthError(msg){
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function submitAuth(btnEl){
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const username = document.getElementById('auth-username') ? document.getElementById('auth-username').value.trim() : '';
+
+  if(!email || !password){ showAuthError('이메일/비밀번호를 입력하세요'); return; }
+  if(authMode === 'signup' && !username){ showAuthError('사용자명을 입력하세요'); return; }
+
+  const origText = btnEl.textContent;
+  btnEl.disabled = true;
+  btnEl.textContent = '처리 중...';
+  document.getElementById('auth-error').style.display='none';
+
+  try {
+    const path = authMode === 'signup' ? '/auth/signup' : '/auth/login';
+    const body = authMode === 'signup' ? {email, username, password} : {email, password};
+    const res = await fetch(DRIFT_BACKEND_URL + path, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.message || (authMode === 'signup' ? '회원가입 실패' : '로그인 실패'));
+
+    localStorage.setItem('drift_token', data.accessToken);
+    localStorage.setItem('drift_username', data.user.username);
+    window.location.href = '/galaxy';
+  } catch(err) {
+    showAuthError(err.message || String(err));
+    btnEl.disabled = false;
+    btnEl.textContent = origText;
+  }
 }
