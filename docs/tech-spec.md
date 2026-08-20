@@ -626,6 +626,7 @@ export interface TasteTwinData {
 
 ### Phase 3 — Twin Scene & Visual Polish
 - [x] **(개정)** `/twin` 라우트에 `TwinScene.tsx` 구현 — 1:1 오버레이 아님, Twin 유저 우주를 단독 렌더링(mock `app/api/twin/route.ts`, `useTwinStore.ts`, `TwinStars.tsx`, `TwinCanvasContainer.tsx`, `TwinHud.tsx`). Gap Node는 `#FF0055` + `TARGET DISCOVERY` `Html` 라벨로 표기, 노드 크기도 1.4배 확대해 시각적으로 강조. 클릭 시 Fly-To 카메라 이동은 Galaxy와 동일한 패턴(RedshiftEngine 보정 좌표 기준)으로 구현
-- [ ] `/explore` 라우트: 코사인 유사도 High/Mid/Low 존 분리 + 워프홀 스플라인 탐색
-- [ ] `SerendipityComet` 3차원 스플라인 애니메이션 및 클릭 이벤트를 통한 Gap Node 검색 처리
-- [ ] Post-processing(Bloom, DOF, ColorInvert) 통합으로 최종 전역 연구실 비주얼 완성
+- [x] `/explore` 라우트: 코사인 유사도 High/Mid/Low 존 분리(`engine/SimilarityZones.ts` — 반지름 방사형 매핑 + 구역 판별) + `SimilarityZoneShells.tsx`(경계 와이어프레임 구 + 라벨), mock `app/api/explore/route.ts`(600 노드), `useExploreStore.ts`
+- [x] `SerendipityComet` 3차원 스플라인 애니메이션(`SerendipityComet.tsx`, HIGH/MID 경계 0.3~0.5 유사도 구간 순찰) 및 클릭 이벤트로 경계 트랙 무작위 포착 → 선택/Fly-To
+- [x] 대척점 블랙홀 워프 — HUD 버튼 클릭 시 유사도 -0.7 미만 노드로 Fly-To + `TacticalEffects.tsx`(`@react-three/postprocessing`의 `ColorAverage`)로 워프 중에만 흑백 반전, 전환 종료 후 자동 해제
+- [ ] Bloom/DOF 등 상시 후처리 비주얼 폴리시 (워프 전용 `ColorAverage`만 우선 적용, 나머지는 추후 성능 검증 후 추가)
