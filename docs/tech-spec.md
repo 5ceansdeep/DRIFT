@@ -620,7 +620,7 @@ export interface TasteTwinData {
 - [x] Web Audio API `PannerNode` HRTF 공간 음향 엔진 구성 (`engine/SpatialAudioEngine.ts` + `AudioController.tsx`, 커밋 `567a550`)
 - [x] `VolumeIntersection` 알고리즘 — 단, UX는 드래그 박스가 아니라 **곡을 하나씩 클릭해서 담는 방식**으로 변경 (`isSectorDrawMode` + `draftTrackIds`, `InstancedStars.tsx`/`SectorToolbar.tsx`)
 - [x] `SectorVolumeBox` HTML 3D 프로필 메타 라벨
-- [x] Sector 영속화용 API — `app/api/sectors/route.ts` (Next.js Route Handler, 서버 프로세스 메모리 저장 — 재시작하면 초기화됨, 실 DB 연동은 별도 작업)
+- [x] Sector 영속화용 API — `app/api/sectors/route.ts`가 backend `GET/POST/DELETE /sectors`(Prisma `Sector` 모델, `owner_id`로 유저별 소유)로 프록시. DB 영속이라 서버 재시작해도 유지됨
 - [x] **(개정)** `ClusterAnimationEngine.ts` — 섹터 지정 트랙이 자기 섹터 박스 위치로 프레임 단위 lerp 집결하는 모션. `SectorToolbar`의 "클러스터 정렬" 토글로 켜고 끔
 - [ ] `SectorCreatorToolbar` 정식 UI (지금은 최소 토글 버튼만 있는 `SectorToolbar.tsx`)
 - [ ] 실제 오디오 파일 (지금은 `/audio/sample.mp3`가 존재하지 않아 재생은 조용히 실패함)
