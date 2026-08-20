@@ -60,45 +60,42 @@ export default function SectorToolbar() {
             : "bg-[#E0F2E9]/80 text-black hover:bg-black hover:text-[#E0F2E9]"
         }`}
       >
-        {isSectorDrawMode ? "구역 지정 중지" : "▢ 구역 지정 모드"}
+        {isSectorDrawMode ? "✕" : "▢"}
       </button>
 
       {isSectorDrawMode && (
         <div className="flex flex-col items-end gap-1 border border-black bg-[#E0F2E9]/90 px-3 py-2">
-          <div className="text-black">담은 곡 · {draftTrackIds.length}</div>
+          <div className="text-black opacity-60">{draftTrackIds.length}</div>
           <div className="flex gap-1.5">
             <button
               onClick={clearDraft}
               disabled={draftTrackIds.length === 0}
               className="border border-black px-2 py-1 text-black disabled:opacity-30"
             >
-              비우기
+              ↺
             </button>
             <button
               onClick={handleSave}
               disabled={draftTrackIds.length === 0}
               className="border border-black bg-black px-2 py-1 text-[#E0F2E9] disabled:opacity-30"
             >
-              저장
+              ✓
             </button>
           </div>
         </div>
       )}
 
       {!isSectorDrawMode && sectorCount > 0 && (
-        <>
-          <button
-            onClick={toggleClusterMode}
-            className={`border border-black px-3 py-1.5 tracking-wider transition-colors ${
-              isClusterMode
-                ? "bg-black text-[#E0F2E9]"
-                : "bg-[#E0F2E9]/80 text-black hover:bg-black hover:text-[#E0F2E9]"
-            }`}
-          >
-            {isClusterMode ? "● 클러스터 정렬 중" : "○ 클러스터 정렬"}
-          </button>
-          <div className="text-black opacity-60">SAVED SECTORS · {sectorCount}</div>
-        </>
+        <button
+          onClick={toggleClusterMode}
+          className={`border border-black px-3 py-1.5 tracking-wider transition-colors ${
+            isClusterMode
+              ? "bg-black text-[#E0F2E9]"
+              : "bg-[#E0F2E9]/80 text-black hover:bg-black hover:text-[#E0F2E9]"
+          }`}
+        >
+          {isClusterMode ? "●" : "○"}
+        </button>
       )}
     </div>
   );

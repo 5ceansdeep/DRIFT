@@ -29,13 +29,12 @@ export default function ExploreHud() {
     <div className="pointer-events-none absolute inset-0 z-10 font-mono text-black">
       <div className="absolute left-4 top-4 flex flex-col gap-1 text-[11px]">
         <Link href="/galaxy" className="pointer-events-auto w-fit opacity-60 hover:opacity-100">
-          ← GALAXY
+          ←
         </Link>
-        <div className="mt-1 font-bold">EXPLORE</div>
-        <div>NODES · {nodes.length}</div>
+        <div className="opacity-40">{nodes.length > 0 ? nodes.length : "···"}</div>
       </div>
 
-      <div className="pointer-events-auto absolute right-4 top-4 flex flex-col items-end gap-2 text-[11px]">
+      <div className="pointer-events-auto absolute right-4 top-4">
         <button
           onClick={handleWarp}
           disabled={isWarping}
@@ -45,9 +44,8 @@ export default function ExploreHud() {
               : "bg-[#E0F2E9]/80 text-black hover:bg-black hover:text-[#8800FF]"
           }`}
         >
-          {isWarping ? "◉ WARPING..." : "⬤ 블랙홀 워프"}
+          {isWarping ? "◉" : "⬤"}
         </button>
-        <div className="text-black opacity-50">혜성 클릭 · 경계 발굴</div>
       </div>
 
       {activeNode && (
@@ -59,9 +57,7 @@ export default function ExploreHud() {
           <div>
             <div className="font-bold">{activeNode.title}</div>
             <div className="opacity-70">{activeNode.artist}</div>
-            <div className="opacity-50">
-              {activeNode.genre} · MATCH {Math.round(activeNode.similarity * 100)}%
-            </div>
+            <div className="opacity-50">{Math.round(activeNode.similarity * 100)}%</div>
           </div>
         </div>
       )}
