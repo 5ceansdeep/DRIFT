@@ -3,6 +3,13 @@
 > 원본: Notion 문서 "[DRIFT] Next.js App Router 기반 시스템 상세 개발 명세서"를 이 저장소용으로 정리.
 > **이 프로젝트는 원본 스펙의 Vite 대신 Next.js App Router를 그대로 사용한다** (이미 결정됨, [../README.md](../README.md) 참고).
 > 아래 예시 코드의 파일 경로(`app/`, `components/`, `store/` 등)는 Next.js 기준으로 그대로 적용 가능.
+>
+> **2026-08-19 아키텍처 개정 (5가지)** — 착수 전 재조정한 사항. 이하 본문/체크리스트는 이 개정을 반영해 갱신됨.
+> 1. **API 통합**: 별도 백엔드 대신 Next.js Route Handlers(`app/api/galaxy`, `app/api/sectors`, `app/api/twin`)로 흡수.
+> 2. **라우팅**: 단일 캔버스 모드 스위칭(`ViewMode`) 폐기 → `/galaxy`(개인 우주) · `/explore`(탐험 우주, 미구현) · `/twin`(Taste Twin 단독 우주, 미구현) 독립 라우트로 분리.
+> 3. **조작계**: 키보드(WASD) 항해 완전 제거. 마우스 전용 `CameraControls` 일원화 — 드래그/휠/클릭 시 Fly-To 포커스만 지원.
+> 4. **Taste Twin**: 1:1 오버레이 방식 폐기 → Twin 유저 우주를 `TwinScene.tsx`로 단독 렌더링, Gap Node는 `#FF0055` + `TARGET DISCOVERY` 라벨로 표기.
+> 5. **개인 우주 모션**: 최초 진입은 시간축 기반 무작위 산란(RedshiftEngine으로 충분). `ClusterAnimationEngine.ts`로 섹터 지정된 트랙이 자기 섹터 박스 위치로 프레임 단위 lerp 집결하는 모션 추가.
 
 R3F(React Three Fiber) + Three.js + Web Audio API 기반 3D 공간형 취향 탐색 엔진 구현 명세.
 
@@ -67,10 +74,12 @@ frontend/
 └── types/index.ts
 ```
 
-이 저장소에서는 `components/3d/`를 이미 `frontend/components/3d/`로 시작했다 ([InstancedStars.tsx](../frontend/components/3d/InstancedStars.tsx) 프로토타입 존재).
+이 저장소에서는 `components/3d/`를 이미 `frontend/components/3d/`로 시작했다 ([InstancedStars.tsx](../frontend/components/3d/objects/InstancedStars.tsx) — Galaxy 실사용 컴포넌트, `frontend/components/3d/InstancedStars.tsx`는 `/prototype` 검증용 별개 파일).
 
-**라우트 배치**: 본 스펙의 Galaxy/Sector/Twin 뷰는 `/galaxy` 같은 새 라우트로 분리 구축한다.
+**라우트 배치 (개정됨)**: `ViewMode` 단일 캔버스 스위칭은 폐기. `/galaxy`(구현됨) · `/explore`(스텁) · `/twin`(스텁) 독립 라우트로 분리 구축한다.
 기존 `frontend/app/page.tsx`(`/`)의 DRIFT v4 목업은 그대로 유지.
+
+**engine/ 폴더 실제 구성**: `RedshiftEngine.ts`, `VolumeIntersection.ts`, `SpatialAudioEngine.ts` 외에 원본 스펙에 없던 `ClusterAnimationEngine.ts`를 추가했다 (섹터 지정 트랙을 자기 섹터 박스로 lerp 집결시키는 모션, 아키텍처 개정 5번 항목).
 
 ## 2. 데이터베이스 & API 데이터 구조
 
@@ -601,18 +610,22 @@ export interface TasteTwinData {
 - [x] `next/dynamic` `{ ssr: false }` Canvas 세팅 — `/galaxy` 새 라우트로 분리, 기존 `/` DRIFT 목업과 병행 (커밋 `ba59ceb`)
 - [x] `InstancedMesh` 기반 800개 mock 노드 렌더링 + 호버/클릭 인터랙션 (`three-mesh-bvh`/`Bvh`는 호환성 이슈로 보류, 3.1 참고)
 - [x] `RedshiftEngine` 개발 및 반감기 기반 위치/색상/크기 보간 파이프라인 연결
+- [x] **(개정)** 단일 캔버스 `ViewMode`(GALAXY/SECTOR/TWIN) 스위칭 폐기 → `/galaxy`, `/explore`, `/twin` 독립 라우트로 분리. `/explore`, `/twin`은 스텁 페이지만 존재 (`app/explore/page.tsx`, `app/twin/page.tsx`)
+- [x] **(개정)** 키보드(WASD) 항해는 스코프에서 완전히 제외 — 마우스 `CameraControls`만 사용. 노드 클릭 시 `setLookAt`으로 Fly-To 포커스 이동 구현 (`CanvasContainer.tsx`)
 - [ ] 실 데이터 연동 (`backend GET /universe/stars`, 로그인 플로우 + PCA refit 필요)
 - [ ] 1,000개 이상 노드 기준 60 FPS 실측 검증 (브라우저 프로파일링 필요)
 
 ### Phase 2 — Spatial Audio & Interaction Systems
 - [x] Web Audio API `PannerNode` HRTF 공간 음향 엔진 구성 (`engine/SpatialAudioEngine.ts` + `AudioController.tsx`, 커밋 `567a550`)
-- [x] `VolumeIntersection` 알고리즘 + 마우스 드래그로 3D 볼륨 지정 (`SectorDrawController.tsx`, 화면 투영 방식)
-- [x] `SectorVolumeBox` HTML 3D 프로필 메타 라벨 (아카이브 API 연동은 미완 — 현재 Zustand client-side에만 저장, 새로고침하면 사라짐)
-- [ ] Sector 영속화용 백엔드 API (`POST/GET /sectors` 또는 NestJS 엔드포인트)
+- [x] `VolumeIntersection` 알고리즘 — 단, UX는 드래그 박스가 아니라 **곡을 하나씩 클릭해서 담는 방식**으로 변경 (`isSectorDrawMode` + `draftTrackIds`, `InstancedStars.tsx`/`SectorToolbar.tsx`)
+- [x] `SectorVolumeBox` HTML 3D 프로필 메타 라벨
+- [x] Sector 영속화용 API — `app/api/sectors/route.ts` (Next.js Route Handler, 서버 프로세스 메모리 저장 — 재시작하면 초기화됨, 실 DB 연동은 별도 작업)
+- [x] **(개정)** `ClusterAnimationEngine.ts` — 섹터 지정 트랙이 자기 섹터 박스 위치로 프레임 단위 lerp 집결하는 모션. `SectorToolbar`의 "클러스터 정렬" 토글로 켜고 끔
 - [ ] `SectorCreatorToolbar` 정식 UI (지금은 최소 토글 버튼만 있는 `SectorToolbar.tsx`)
 - [ ] 실제 오디오 파일 (지금은 `/audio/sample.mp3`가 존재하지 않아 재생은 조용히 실패함)
 
-### Phase 3 — Twin Overlay & Visual Polish
-- [ ] `TwinOverlayScene` 구현 (사용자: Cyan 와이어프레임 vs Twin: Slate White 와이어프레임)
-- [ ] `SerendipityComet` 3차원 스플라인 애니메이션 및 포함 이벤트를 통한 Gap Node 검색 처리
+### Phase 3 — Twin Scene & Visual Polish
+- [ ] **(개정)** `/twin` 라우트에 `TwinScene.tsx` 구현 — 1:1 오버레이 아님, Twin 유저 우주를 단독 렌더링. Gap Node는 `#FF0055` + `TARGET DISCOVERY` 라벨
+- [ ] `/explore` 라우트: 코사인 유사도 High/Mid/Low 존 분리 + 워프홀 스플라인 탐색
+- [ ] `SerendipityComet` 3차원 스플라인 애니메이션 및 클릭 이벤트를 통한 Gap Node 검색 처리
 - [ ] Post-processing(Bloom, DOF, ColorInvert) 통합으로 최종 전역 연구실 비주얼 완성

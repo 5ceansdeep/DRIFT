@@ -152,3 +152,11 @@
 - `frontend/app/page.tsx`(`/`)는 별도의 정적 DRIFT v4 목업(Landing/Explore/Archive/Add Track/Social/Settings, vanilla Three.js)이 이미 포팅되어 있음 — 본 스펙의 Galaxy/Sector/Twin 3뷰 체계와는 다른 UI. **결정: 본 스펙 기능은 `/galaxy` 같은 새 라우트로 분리 구축, 기존 `/` 목업은 유지하며 병행 개발.**
 - `frontend/components/3d/InstancedStars.tsx` + `frontend/app/prototype/page.tsx`: 큐브 1,000개 InstancedMesh 호버 프로토타입 존재 (본 스펙 3.2의 원형). `Bvh` 래퍼는 `InstancedMesh`와의 호환성 이슈로 현재 제외된 상태.
 - backend는 NestJS + Prisma + PostgreSQL, 75차원 벡터를 Postgres 배열 컬럼에 저장 (Vector DB 미도입). PCA는 `backend/umap/*.py` 오프라인 스크립트.
+
+### 2026-08-19 아키텍처 개정 (5가지) — [tech-spec.md](tech-spec.md) 상단 참고
+
+1. **API 통합**: 별도 백엔드 대신 Next.js Route Handlers(`app/api/galaxy`, `app/api/sectors`, `app/api/twin`)로 흡수.
+2. **라우팅**: §3의 "단일 캔버스 안 모드 스위칭" 방식은 폐기하고 `/galaxy`(구현) · `/explore`(스텁) · `/twin`(스텁) 독립 라우트로 분리.
+3. **조작계**: §2.3의 키보드(WASD/방향키) 항해는 스코프에서 제거. 마우스 `CameraControls`(드래그/휠) + 클릭 시 Fly-To 포커스로 일원화.
+4. **Taste Twin**: §3.3의 1:1 오버레이 뷰는 폐기 → `/twin`에서 Twin 유저 우주를 단독 렌더링, Gap Node는 오버레이 없이 `#FF0055` + `TARGET DISCOVERY` 라벨로 표기.
+5. **개인 우주 모션**: `/galaxy` 최초 진입은 시간축 기반 무작위 산란 유지, 섹터 지정 트랙은 `ClusterAnimationEngine.ts`로 자기 섹터 박스 위치로 lerp 집결하는 모션 추가 (구현됨).
