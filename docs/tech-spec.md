@@ -598,9 +598,11 @@ export interface TasteTwinData {
 ## 6. 구현 마일스톤 체크리스트
 
 ### Phase 1 — Dynamic Canvas & Instanced Pipeline
-- [ ] `next/dynamic` `{ ssr: false }` Canvas 세팅 (`app/page.tsx` ↔ 기존 DRIFT 목업 `/` 라우트와 공존 방식 결정 필요)
-- [ ] `InstancedMesh` + `three-mesh-bvh` 결합: 1,000개 노드 기준 60 FPS 검증
-- [ ] `RedshiftEngine` 개발 및 반감기 기반 위치/색상 보간 파이프라인 연결
+- [x] `next/dynamic` `{ ssr: false }` Canvas 세팅 — `/galaxy` 새 라우트로 분리, 기존 `/` DRIFT 목업과 병행 (커밋 `ba59ceb`)
+- [x] `InstancedMesh` 기반 800개 mock 노드 렌더링 + 호버/클릭 인터랙션 (`three-mesh-bvh`/`Bvh`는 호환성 이슈로 보류, 3.1 참고)
+- [x] `RedshiftEngine` 개발 및 반감기 기반 위치/색상/크기 보간 파이프라인 연결
+- [ ] 실 데이터 연동 (`backend GET /universe/stars`, 로그인 플로우 + PCA refit 필요)
+- [ ] 1,000개 이상 노드 기준 60 FPS 실측 검증 (브라우저 프로파일링 필요)
 
 ### Phase 2 — Spatial Audio & Interaction Systems
 - [ ] Web Audio API `PannerNode` HRTF 공간 음향 엔진 구성
