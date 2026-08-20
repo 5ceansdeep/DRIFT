@@ -182,6 +182,10 @@ export default function InstancedStars() {
     <instancedMesh
       ref={meshRef}
       args={[undefined, undefined, nodes.length]}
+      // 클러스터 모드에서 setMatrixAt으로 인스턴스를 계속 이동시키는데,
+      // InstancedMesh의 프러스텀 컬링용 바운딩 스피어는 최초 1회 계산된 뒤
+      // 자동 갱신되지 않는다. 컬링을 꺼서 "전체가 통째로 사라지는" 버그를 막는다.
+      frustumCulled={false}
       onPointerMove={handlePointerMove}
       onPointerOut={handlePointerOut}
       onClick={handleClick}

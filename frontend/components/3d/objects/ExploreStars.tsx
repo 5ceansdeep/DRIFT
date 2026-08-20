@@ -75,6 +75,9 @@ export default function ExploreStars({ nodes }: { nodes: TrackNode[] }) {
     <instancedMesh
       ref={meshRef}
       args={[undefined, undefined, nodes.length]}
+      // 호버 시 setMatrixAt으로 스케일을 바꾸는데, InstancedMesh의 캐시된
+      // 바운딩 스피어가 갱신되지 않아 전체가 컬링될 수 있어 꺼둔다.
+      frustumCulled={false}
       onPointerMove={handlePointerMove}
       onPointerOut={handlePointerOut}
       onClick={handleClick}
