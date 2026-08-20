@@ -45,7 +45,7 @@ export default function ExploreHud() {
           className={`border border-black px-3 py-1.5 tracking-wider transition-colors ${
             isWarping
               ? "bg-black text-[#8800FF] opacity-70"
-              : "bg-[#E0F2E9]/80 text-black hover:bg-black hover:text-[#8800FF]"
+              : "bg-[#c8f0d8]/80 text-black hover:bg-black hover:text-[#8800FF]"
           }`}
         >
           {isWarping ? "◉" : "⬤"}
@@ -53,7 +53,7 @@ export default function ExploreHud() {
       </div>
 
       {activeNode && (
-        <div className="pointer-events-none absolute bottom-4 left-4 flex max-w-xs items-center gap-2 border border-black bg-[#E0F2E9]/90 px-3 py-2 text-[11px]">
+        <div className="pointer-events-none absolute bottom-4 left-4 flex max-w-xs items-center gap-2 border border-black bg-[#c8f0d8]/90 px-3 py-2 text-[11px]">
           {activeNode.coverUrl && (
             // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지, 썸네일 크기로 요청해 로딩 가볍게
             <img

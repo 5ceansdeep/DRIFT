@@ -11,6 +11,7 @@ import { useGalaxyStore } from "@/store/useGalaxyStore";
 import { calculateRedshiftColorAndPosition } from "@/engine/RedshiftEngine";
 import { buildClusterTargets } from "@/engine/ClusterAnimationEngine";
 import GalaxyHud from "../ui/GalaxyHud";
+import AtmosphereFX from "../ui/AtmosphereFX";
 
 const FOCUS_DISTANCE = 18;
 
@@ -57,13 +58,14 @@ export default function CanvasContainer() {
 
   return (
     <div className="relative h-full w-full">
+      <AtmosphereFX />
       <GalaxyHud />
 
       <Canvas
         dpr={[1, 2]}
         camera={{ position: [0, 0, 120], fov: 55 }}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-        onCreated={({ gl }) => gl.setClearColor("#E0F2E9")}
+        onCreated={({ gl }) => gl.setClearColor("#c8f0d8")}
       >
         <CameraControls
           ref={controlsRef}

@@ -56,15 +56,15 @@ export default function SectorToolbar() {
         onClick={toggleSectorDrawMode}
         className={`border border-black px-3 py-1.5 tracking-wider transition-colors ${
           isSectorDrawMode
-            ? "bg-black text-[#E0F2E9]"
-            : "bg-[#E0F2E9]/80 text-black hover:bg-black hover:text-[#E0F2E9]"
+            ? "bg-black text-[#c8f0d8]"
+            : "bg-[#c8f0d8]/80 text-black hover:bg-black hover:text-[#c8f0d8]"
         }`}
       >
         {isSectorDrawMode ? "✕" : "▢"}
       </button>
 
       {isSectorDrawMode && (
-        <div className="flex flex-col items-end gap-1 border border-black bg-[#E0F2E9]/90 px-3 py-2">
+        <div className="flex flex-col items-end gap-1 border border-black bg-[#c8f0d8]/90 px-3 py-2">
           <div className="text-black opacity-60">{draftTrackIds.length}</div>
           <div className="flex gap-1.5">
             <button
@@ -77,7 +77,7 @@ export default function SectorToolbar() {
             <button
               onClick={handleSave}
               disabled={draftTrackIds.length === 0}
-              className="border border-black bg-black px-2 py-1 text-[#E0F2E9] disabled:opacity-30"
+              className="border border-black bg-black px-2 py-1 text-[#c8f0d8] disabled:opacity-30"
             >
               ✓
             </button>
@@ -90,8 +90,8 @@ export default function SectorToolbar() {
           onClick={toggleClusterMode}
           className={`border border-black px-3 py-1.5 tracking-wider transition-colors ${
             isClusterMode
-              ? "bg-black text-[#E0F2E9]"
-              : "bg-[#E0F2E9]/80 text-black hover:bg-black hover:text-[#E0F2E9]"
+              ? "bg-black text-[#c8f0d8]"
+              : "bg-[#c8f0d8]/80 text-black hover:bg-black hover:text-[#c8f0d8]"
           }`}
         >
           {isClusterMode ? "●" : "○"}

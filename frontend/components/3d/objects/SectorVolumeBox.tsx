@@ -28,7 +28,7 @@ export default function SectorVolumeBox({ sector }: Props) {
       </mesh>
 
       <Html position={[0, size[1] / 2 + 2, 0]} center>
-        <div className="whitespace-nowrap rounded border border-black bg-[#E0F2E9]/90 px-2 py-1 font-mono text-[10px] tracking-wider text-black shadow-md backdrop-blur-sm">
+        <div className="whitespace-nowrap rounded border border-black bg-[#c8f0d8]/90 px-2 py-1 font-mono text-[10px] tracking-wider text-black shadow-md backdrop-blur-sm">
           [{sector.name.toUpperCase()}] : {sector.trackIds.length} TRACKS
         </div>
       </Html>

@@ -8,6 +8,7 @@ import TwinScene from "./scenes/TwinScene";
 import { useTwinStore } from "@/store/useTwinStore";
 import { calculateRedshiftColorAndPosition } from "@/engine/RedshiftEngine";
 import TwinHud from "../ui/TwinHud";
+import AtmosphereFX from "../ui/AtmosphereFX";
 
 const FOCUS_DISTANCE = 18;
 
@@ -37,13 +38,14 @@ export default function TwinCanvasContainer() {
 
   return (
     <div className="relative h-full w-full">
+      <AtmosphereFX />
       <TwinHud />
 
       <Canvas
         dpr={[1, 2]}
         camera={{ position: [0, 0, 120], fov: 55 }}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-        onCreated={({ gl }) => gl.setClearColor("#E0F2E9")}
+        onCreated={({ gl }) => gl.setClearColor("#c8f0d8")}
       >
         <CameraControls
           ref={controlsRef}

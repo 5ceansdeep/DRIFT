@@ -1,0 +1,69 @@
+/*
+ * DRIFT 공통 비주얼 언어 — 원래 랜딩(drift.css/drift-markup.ts) 목업에서만 쓰이던
+ * 폰트/색/아날로그 텍스처를 /galaxy, /explore, /twin 라우트에도 적용해 톤을
+ * 통일한다. drift.css 전체를 끌어오면 이미 지운 목업 화면용 규칙까지 딸려오므로,
+ * 재사용 가능한 "분위기" 부분만 뽑아 별도 파일로 관리한다.
+ */
+
+:root {
+  --f-mono: 'IBM Plex Mono', 'Noto Sans KR', monospace;
+  --f-display: 'Unbounded', 'Noto Sans KR', sans-serif;
+  --f-kr: 'Noto Sans KR', 'IBM Plex Mono', sans-serif;
+
+  --paper: #c8f0d8;
+  --ink: #0a0f0c;
+  --ink2: #2a3830;
+  --ink3: #5a7060;
+  --rule: #0a0f0c;
+  --muted: #7aaa8a;
+}
+
+body {
+  font-family: var(--f-mono);
+}
+
+/* ── GRAIN (아날로그 필름 그레인 오버레이) ── */
+.drift-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ── SCAN LINE ── */
+.drift-scanline {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(10, 15, 12, 0.15), transparent);
+  pointer-events: none;
+  z-index: 41;
+  animation: drift-scan 6s linear infinite;
+  top: 0;
+}
+@keyframes drift-scan {
+  0% { top: 0; opacity: 0; }
+  2% { opacity: 1; }
+  95% { opacity: 0.3; }
+  100% { top: 100vh; opacity: 0; }
+}
+
+/* ── REGISTRATION MARKS (필름 레지 마크 — 코너 장식) ── */
+.drift-reg { position: fixed; z-index: 42; pointer-events: none; }
+.drift-reg::before, .drift-reg::after { content: ''; position: absolute; background: var(--ink); opacity: 0.2; }
+.drift-reg-tl { top: 8px; left: 8px; }
+.drift-reg-tl::before { width: 16px; height: 1px; top: 0; left: 0; }
+.drift-reg-tl::after { width: 1px; height: 16px; top: 0; left: 0; }
+.drift-reg-tr { top: 8px; right: 8px; }
+.drift-reg-tr::before { width: 16px; height: 1px; top: 0; right: 0; }
+.drift-reg-tr::after { width: 1px; height: 16px; top: 0; right: 0; }
+.drift-reg-bl { bottom: 8px; left: 8px; }
+.drift-reg-bl::before { width: 16px; height: 1px; bottom: 0; left: 0; }
+.drift-reg-bl::after { width: 1px; height: 16px; bottom: 0; left: 0; }
+.drift-reg-br { bottom: 8px; right: 8px; }
+.drift-reg-br::before { width: 16px; height: 1px; bottom: 0; right: 0; }
+.drift-reg-br::after { width: 1px; height: 16px; bottom: 0; right: 0; }

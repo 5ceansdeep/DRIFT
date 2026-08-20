@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 const CanvasContainer = dynamic(() => import("@/components/3d/CanvasContainer"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-screen w-screen flex-col items-center justify-center bg-[#E0F2E9] font-mono text-black">
+    <div className="flex h-screen w-screen flex-col items-center justify-center bg-[#c8f0d8] font-mono text-black">
       <div className="animate-pulse text-xl font-bold">[ DRIFT SYSTEM INITIALIZING ]</div>
       <div className="mt-2 text-xs opacity-60">CALIBRATING 80D TO 3D TOPOLOGY...</div>
     </div>
@@ -14,7 +14,7 @@ const CanvasContainer = dynamic(() => import("@/components/3d/CanvasContainer"),
 
 export default function GalaxyPage() {
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-[#E0F2E9]">
+    <main className="relative h-screen w-screen overflow-hidden bg-[#c8f0d8]">
       <CanvasContainer />
     </main>
   );

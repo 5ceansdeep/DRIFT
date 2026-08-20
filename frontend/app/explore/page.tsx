@@ -9,7 +9,7 @@ const ExploreCanvasContainer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <main className="flex h-screen w-screen items-center justify-center bg-[#E0F2E9] font-mono text-black">
+      <main className="flex h-screen w-screen items-center justify-center bg-[#c8f0d8] font-mono text-black">
         LOADING EXPLORE UNIVERSE...
       </main>
     ),
@@ -18,7 +18,7 @@ const ExploreCanvasContainer = dynamic(
 
 export default function ExplorePage() {
   return (
-    <main className="h-screen w-screen bg-[#E0F2E9]">
+    <main className="h-screen w-screen bg-[#c8f0d8]">
       <ExploreCanvasContainer />
     </main>
   );

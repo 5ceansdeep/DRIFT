@@ -7,6 +7,7 @@ import ExploreScene from "./scenes/ExploreScene";
 import TacticalEffects from "./postprocessing/TacticalEffects";
 import { useExploreStore } from "@/store/useExploreStore";
 import ExploreHud from "../ui/ExploreHud";
+import AtmosphereFX from "../ui/AtmosphereFX";
 
 const FOCUS_DISTANCE = 18;
 const WARP_TRANSITION_MS = 1300; // CameraControls smoothTime(0.9~1.2s)에 맞춘 여유값
@@ -45,13 +46,14 @@ export default function ExploreCanvasContainer() {
 
   return (
     <div className="relative h-full w-full">
+      <AtmosphereFX />
       <ExploreHud />
 
       <Canvas
         dpr={[1, 2]}
         camera={{ position: [0, 0, 150], fov: 55 }}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-        onCreated={({ gl }) => gl.setClearColor("#E0F2E9")}
+        onCreated={({ gl }) => gl.setClearColor("#c8f0d8")}
       >
         <CameraControls
           ref={controlsRef}
