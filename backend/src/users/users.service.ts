@@ -4,6 +4,17 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
+function cosineSimilarity(a: number[], b: number[]): number {
+  let dot = 0, normA = 0, normB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+  if (normA === 0 || normB === 0) return 0;
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
@@ -100,6 +111,65 @@ export class UsersService {
     await this.prisma.user.delete({ where: { id: userId } });
 
     return { message: '계정이 삭제되었습니다' };
+  }
+
+  /**
+   * 취향 쌍둥이 — taste_vector 코사인 유사도가 가장 높은 다른 유저 1명과
+   * 그 유저의 아카이브를 반환한다. 곡 좌표는 이미 계산된 song.coordX/Y/Z를
+   * 그대로 쓴다(같은 PCA 모델을 공유하는 우주라 별도 투영이 필요 없음).
+   * Gap Node = 쌍둥이는 담았지만 나는 아직 안 담은 곡.
+   */
+  async findTwin(userId: string) {
+    const me = await this.prisma.user.findUnique({ where: { id: userId } });
+    const myVector = (me?.tasteVector as number[]) ?? [];
+    if (!me || myVector.length === 0) {
+      return { twin: null, message: '아카이브에 곡을 저장하면 취향 쌍둥이를 찾을 수 있어요' };
+    }
+
+    const others = await this.prisma.user.findMany({
+      where: { id: { not: userId }, tasteVector: { isEmpty: false } },
+    });
+
+    let best: { user: (typeof others)[number]; similarity: number } | null = null;
+    for (const other of others) {
+      const similarity = cosineSimilarity(myVector, other.tasteVector as number[]);
+      if (!best || similarity > best.similarity) best = { user: other, similarity };
+    }
+    if (!best) {
+      return { twin: null, message: '아직 취향을 비교할 다른 유저가 없어요' };
+    }
+
+    const myUserSongs = await this.prisma.userSong.findMany({
+      where: { userId },
+      select: { songId: true },
+    });
+    const mySongIds = new Set(myUserSongs.map((us) => us.songId));
+
+    const twinUserSongs = await this.prisma.userSong.findMany({
+      where: { userId: best.user.id },
+      include: { song: true },
+    });
+    const twinSongs = twinUserSongs
+      .map((us) => us.song)
+      .filter((s) => s.coordX !== null && s.coordY !== null && s.coordZ !== null);
+
+    return {
+      twin: {
+        twinUserId: best.user.id,
+        twinUsername: best.user.username,
+        matchPercentage: Math.round(best.similarity * 100),
+        twinNodes: twinSongs.map((s) => ({
+          id: s.id,
+          title: s.title,
+          artist: s.artist,
+          coverUrl: s.coverUrl,
+          previewUrl: s.previewUrl,
+          genreTags: s.genreTags,
+          coord: { x: s.coordX, y: s.coordY, z: s.coordZ },
+          isGapNode: !mySongIds.has(s.id),
+        })),
+      },
+    };
   }
 
   async getUserSongs(username: string) {

@@ -37,6 +37,12 @@ export class UsersController {
     return this.usersService.deleteMe(user.id);
   }
 
+  @Get('twin')
+  @ApiOperation({ summary: '취향 쌍둥이(코사인 유사도 최고 1명) + Gap Node 조회' })
+  getTwin(@CurrentUser() user: { id: string }) {
+    return this.usersService.findTwin(user.id);
+  }
+
   @Get(':username')
   @ApiOperation({ summary: '다른 유저 프로필 조회' })
   getUser(@Param('username') username: string) {

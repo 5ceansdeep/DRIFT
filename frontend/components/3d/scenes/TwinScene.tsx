@@ -5,7 +5,10 @@ import * as THREE from "three";
 import { Html } from "@react-three/drei";
 import { useTwinStore } from "@/store/useTwinStore";
 import { calculateRedshiftColorAndPosition } from "@/engine/RedshiftEngine";
+import { authHeader } from "@/lib/authClient";
+import { prefetchCovers } from "@/lib/itunesImage";
 import TwinStars from "../objects/TwinStars";
+import type { TrackNode } from "@/types";
 
 export default function TwinScene() {
   const twinData = useTwinStore((state) => state.twinData);
@@ -13,9 +16,12 @@ export default function TwinScene() {
 
   useEffect(() => {
     if (twinData) return;
-    fetch("/api/twin")
+    fetch("/api/twin", { headers: authHeader() })
       .then((res) => res.json())
-      .then((data) => setTwinData(data))
+      .then((data) => {
+        setTwinData(data);
+        prefetchCovers(data.twinNodes.map((n: TrackNode) => n.coverUrl));
+      })
       .catch((err) => console.error("[TwinScene] failed to load twin data:", err));
   }, [twinData, setTwinData]);
 

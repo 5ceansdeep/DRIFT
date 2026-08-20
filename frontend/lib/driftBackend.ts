@@ -91,3 +91,29 @@ export async function fetchRecommendCandidates(
   const data = (await res.json()) as { songs: RecommendCandidate[] };
   return data.songs;
 }
+
+export interface BackendTwinNode {
+  id: string;
+  title: string;
+  artist: string;
+  coverUrl: string | null;
+  previewUrl: string | null;
+  genreTags: string[];
+  coord: { x: number; y: number; z: number };
+  isGapNode: boolean;
+}
+
+export interface BackendTwin {
+  twinUserId: string;
+  twinUsername: string;
+  matchPercentage: number;
+  twinNodes: BackendTwinNode[];
+}
+
+/** GET /users/twin — taste_vector 코사인 유사도 최고 1명 + 그 유저의 아카이브(Gap Node 포함). */
+export async function fetchTwin(overrideToken?: string): Promise<BackendTwin | null> {
+  const res = await authedFetch("/users/twin", overrideToken);
+  if (!res.ok) throw new Error(`/users/twin 조회 실패: ${res.status}`);
+  const data = (await res.json()) as { twin: BackendTwin | null; message?: string };
+  return data.twin;
+}
