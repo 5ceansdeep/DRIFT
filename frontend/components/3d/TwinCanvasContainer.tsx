@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 import TwinScene from "./scenes/TwinScene";
+import AudioController from "./AudioController";
 import { useTwinStore } from "@/store/useTwinStore";
 import { calculateRedshiftColorAndPosition } from "@/engine/RedshiftEngine";
 import TwinHud from "../ui/TwinHud";
@@ -61,6 +62,7 @@ export default function TwinCanvasContainer() {
           restThreshold={0.005}
         />
         <ambientLight intensity={0.8} />
+        <AudioController selectedTrackId={selectedTrackId} nodes={twinData?.twinNodes ?? []} />
         <TwinScene />
       </Canvas>
     </div>

@@ -81,7 +81,7 @@ export default function CanvasContainer() {
           restThreshold={0.005}
         />
         <ambientLight intensity={0.8} />
-        <AudioController />
+        <AudioController selectedTrackId={selectedTrackId} nodes={nodes} />
         <GalaxyScene />
         {savedSectors.map((sector) => (
           <SectorVolumeBox key={sector.sectorId} sector={sector} />

@@ -12,10 +12,12 @@ export default function GalaxyHud() {
   const nodeCount = useGalaxyStore((state) => state.nodes.length);
   const hoveredTrackId = useGalaxyStore((state) => state.hoveredTrackId);
   const selectedTrackId = useGalaxyStore((state) => state.selectedTrackId);
+  const setSelectedTrackId = useGalaxyStore((state) => state.setSelectedTrackId);
   const nodes = useGalaxyStore((state) => state.nodes);
 
   // 선택된 곡은 TrackDetailPanel(화면 중앙)이 담당 — 여기선 hover만 가볍게 표시.
   const hovered = selectedTrackId ? undefined : nodes.find((n) => n.trackId === hoveredTrackId);
+  const selected = nodes.find((n) => n.trackId === selectedTrackId) ?? null;
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 p-4 font-mono text-[11px] text-black">
@@ -46,7 +48,7 @@ export default function GalaxyHud() {
       )}
 
       <SectorToolbar />
-      <TrackDetailPanel />
+      <TrackDetailPanel node={selected} onClose={() => setSelectedTrackId(null)} />
       <ArchiveSearch />
     </div>
   );

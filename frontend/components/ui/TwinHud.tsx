@@ -2,15 +2,20 @@
 
 import Link from "next/link";
 import { useTwinStore } from "@/store/useTwinStore";
+import TrackDetailPanel from "./TrackDetailPanel";
 
 // Phase 3 최소 HUD. 정식 디자인은 추후 확정.
 export default function TwinHud() {
   const twinData = useTwinStore((state) => state.twinData);
   const hoveredTrackId = useTwinStore((state) => state.hoveredTrackId);
   const selectedTrackId = useTwinStore((state) => state.selectedTrackId);
+  const setSelectedTrackId = useTwinStore((state) => state.setSelectedTrackId);
 
-  const activeId = hoveredTrackId ?? selectedTrackId;
-  const activeNode = twinData?.twinNodes.find((n) => n.trackId === activeId);
+  // 선택된 곡은 TrackDetailPanel(화면 중앙)이 담당 — 여기선 hover만 가볍게 표시.
+  const hoveredNode = selectedTrackId
+    ? undefined
+    : twinData?.twinNodes.find((n) => n.trackId === hoveredTrackId);
+  const selectedNode = twinData?.twinNodes.find((n) => n.trackId === selectedTrackId) ?? null;
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 font-mono text-black">
@@ -24,13 +29,23 @@ export default function TwinHud() {
         {twinData && <div className="mt-1 font-bold opacity-70">{twinData.matchPercentage}%</div>}
       </div>
 
-      {activeNode && (
+      {hoveredNode && (
         <div className="drift-panel-in absolute bottom-4 left-4 max-w-xs border border-black bg-[#c8f0d8]/90 px-3 py-2 text-[11px]">
-          <div className="font-bold">{activeNode.title}</div>
-          <div className="opacity-70">{activeNode.artist}</div>
-          {activeNode.isGapNode && <div className="mt-1 font-bold text-[#FF0055]">▲</div>}
+          <div className="font-bold">{hoveredNode.title}</div>
+          <div className="opacity-70">{hoveredNode.artist}</div>
+          {hoveredNode.isGapNode && <div className="mt-1 font-bold text-[#FF0055]">▲</div>}
         </div>
       )}
+
+      <TrackDetailPanel
+        node={selectedNode}
+        onClose={() => setSelectedTrackId(null)}
+        badge={
+          selectedNode?.isGapNode ? (
+            <span className="text-[11px] font-bold text-[#FF0055]">▲ TARGET DISCOVERY</span>
+          ) : undefined
+        }
+      />
     </div>
   );
 }

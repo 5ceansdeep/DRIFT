@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 import ExploreScene from "./scenes/ExploreScene";
 import TacticalEffects from "./postprocessing/TacticalEffects";
+import AudioController from "./AudioController";
 import { useExploreStore } from "@/store/useExploreStore";
 import ExploreHud from "../ui/ExploreHud";
 import AtmosphereFX from "../ui/AtmosphereFX";
@@ -69,6 +70,7 @@ export default function ExploreCanvasContainer() {
           restThreshold={0.005}
         />
         <ambientLight intensity={0.8} />
+        <AudioController selectedTrackId={selectedTrackId} nodes={nodes} />
         <ExploreScene />
         <TacticalEffects />
       </Canvas>
