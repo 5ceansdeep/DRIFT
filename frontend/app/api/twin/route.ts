@@ -73,7 +73,7 @@ export async function GET(request: Request) {
         n.coord.z * POSITION_SCALE,
       ],
       similarity: 0,
-      lastPlayedAt: new Date().toISOString(),
+      lastPlayedAt: n.lastPlayedAt,
       audioUrl: n.previewUrl ?? "/audio/sample.mp3",
       genre: n.genreTags[0] ?? "Unknown",
       coverUrl: n.coverUrl,

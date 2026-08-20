@@ -149,19 +149,20 @@ export class UsersService {
       where: { userId: best.user.id },
       include: { song: true },
     });
-    const twinSongs = twinUserSongs
-      .map((us) => us.song)
-      .filter((s) => s.coordX !== null && s.coordY !== null && s.coordZ !== null);
+    const twinEntries = twinUserSongs.filter(
+      (us) => us.song.coordX !== null && us.song.coordY !== null && us.song.coordZ !== null,
+    );
 
     return {
       twin: {
         twinUserId: best.user.id,
         twinUsername: best.user.username,
         matchPercentage: Math.round(best.similarity * 100),
-        twinNodes: twinSongs.map((s) => ({
+        twinNodes: twinEntries.map(({ song: s, savedAt }) => ({
           id: s.id,
           title: s.title,
           artist: s.artist,
+          lastPlayedAt: savedAt.toISOString(), // 쌍둥이가 이 곡을 저장한 시각
           coverUrl: s.coverUrl,
           previewUrl: s.previewUrl,
           genreTags: s.genreTags,

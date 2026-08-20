@@ -14,6 +14,7 @@ interface BackendStar {
   previewUrl: string | null;
   genreTags: string[];
   coord: { x: number; y: number; z: number };
+  lastPlayedAt: string; // 내가 저장한 곡이면 저장 시각, 아니면 곡이 DB에 들어온 시각
 }
 
 // 토큰은 서버 프로세스 메모리에만 캐시 (dev 서버 재시작 전까지 재사용, ~7일 만료).
@@ -101,6 +102,7 @@ export interface BackendTwinNode {
   genreTags: string[];
   coord: { x: number; y: number; z: number };
   isGapNode: boolean;
+  lastPlayedAt: string; // 쌍둥이가 이 곡을 저장한 시각
 }
 
 export interface BackendTwin {
