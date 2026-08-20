@@ -74,7 +74,7 @@ export default function ArchiveSearch() {
       </button>
 
       {open && (
-        <div className="flex w-72 flex-col gap-2 border border-black bg-[#c8f0d8]/90 p-3 text-black">
+        <div className="drift-panel-in flex w-72 flex-col gap-2 border border-black bg-[#c8f0d8]/90 p-3 text-black">
           <div className="flex gap-1">
             <input
               value={query}

@@ -64,7 +64,7 @@ export default function SectorToolbar() {
       </button>
 
       {isSectorDrawMode && (
-        <div className="flex flex-col items-end gap-1 border border-black bg-[#c8f0d8]/90 px-3 py-2">
+        <div className="drift-panel-in flex flex-col items-end gap-1 border border-black bg-[#c8f0d8]/90 px-3 py-2">
           <div className="text-black opacity-60">{draftTrackIds.length}</div>
           <div className="flex gap-1.5">
             <button

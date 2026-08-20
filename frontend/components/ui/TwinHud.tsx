@@ -25,7 +25,7 @@ export default function TwinHud() {
       </div>
 
       {activeNode && (
-        <div className="absolute bottom-4 left-4 max-w-xs border border-black bg-[#c8f0d8]/90 px-3 py-2 text-[11px]">
+        <div className="drift-panel-in absolute bottom-4 left-4 max-w-xs border border-black bg-[#c8f0d8]/90 px-3 py-2 text-[11px]">
           <div className="font-bold">{activeNode.title}</div>
           <div className="opacity-70">{activeNode.artist}</div>
           {activeNode.isGapNode && <div className="mt-1 font-bold text-[#FF0055]">▲</div>}

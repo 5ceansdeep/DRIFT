@@ -12,6 +12,7 @@ const tempObject = new THREE.Object3D();
 const HOVER_SCALE_MULT = 1.6;
 const PICK_COLOR = new THREE.Color("#ff2fb0"); // Sector 큐레이션 중 담긴 곡 강조색
 const LERP_LAMBDA = 4; // 클러스터 모션 damp 계수 — 클수록 빠르게 수렴
+const HOVER_LAMBDA = 14; // 호버 스케일 damp 계수 — 클수록 빠르게 반응
 
 interface BaseTransform {
   position: THREE.Vector3;
@@ -25,6 +26,9 @@ export default function InstancedStars() {
   const baseTransforms = useRef<BaseTransform[]>([]);
   // 실제로 화면에 그려지는 현재 위치 — 클러스터 모드일 때 이 값이 목표 위치로 lerp된다.
   const currentPositions = useRef<THREE.Vector3[]>([]);
+  // 현재 스케일 배수(1 = base, HOVER_SCALE_MULT = 호버) — 매 프레임 목표치로 damp되어
+  // 스케일이 순간이동 대신 부드럽게 커지고 줄어들게 한다.
+  const scaleMults = useRef<number[]>([]);
   const isAnimating = useRef(false);
   const hoveredId = useRef<number | null>(null);
 
@@ -67,6 +71,7 @@ export default function InstancedStars() {
 
     baseTransforms.current = transforms;
     currentPositions.current = positions;
+    scaleMults.current = nodes.map(() => 1);
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [nodes]);
@@ -90,7 +95,8 @@ export default function InstancedStars() {
     isAnimating.current = true;
   }, [isClusterMode, clusterTargets]);
 
-  // ClusterAnimationEngine 목표 위치로 매 프레임 lerp (수렴하면 자동으로 멈춘다).
+  // ClusterAnimationEngine 목표 위치로, 그리고 호버 스케일 배수를 매 프레임
+  // damp — 위치/스케일 둘 다 순간이동 없이 부드럽게 수렴하면 자동으로 멈춘다.
   useFrame((_, delta) => {
     if (!isAnimating.current) return;
     const mesh = meshRef.current;
@@ -119,7 +125,16 @@ export default function InstancedStars() {
         current.copy(target);
       }
 
-      const scale = i === hoveredId.current ? base.scale * HOVER_SCALE_MULT : base.scale;
+      const targetMult = i === hoveredId.current ? HOVER_SCALE_MULT : 1;
+      const curMult = scaleMults.current[i] ?? 1;
+      if (Math.abs(curMult - targetMult) > 0.002) {
+        scaleMults.current[i] = THREE.MathUtils.damp(curMult, targetMult, HOVER_LAMBDA, delta);
+        stillMoving = true;
+      } else {
+        scaleMults.current[i] = targetMult;
+      }
+
+      const scale = base.scale * scaleMults.current[i];
       tempObject.position.copy(current);
       tempObject.scale.set(scale, scale, scale);
       tempObject.updateMatrix();
@@ -130,39 +145,19 @@ export default function InstancedStars() {
     if (!stillMoving) isAnimating.current = false;
   });
 
-  // 애니메이션이 쉬고 있을 때(클러스터 전환 중이 아닐 때)의 호버 확대/축소.
-  // currentPositions 기준으로 스케일만 덧그린다 — 클러스터된 위치를 건드리지 않는다.
-  const applyScale = (id: number, mult: number) => {
-    const mesh = meshRef.current;
-    const base = baseTransforms.current[id];
-    const current = currentPositions.current[id];
-    if (!mesh || !base || !current) return;
-    tempObject.position.copy(current);
-    const s = base.scale * mult;
-    tempObject.scale.set(s, s, s);
-    tempObject.updateMatrix();
-    mesh.setMatrixAt(id, tempObject.matrix);
-    mesh.instanceMatrix.needsUpdate = true;
-  };
-
   const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     const id = e.instanceId;
     if (id === undefined || !nodes[id] || id === hoveredId.current) return;
 
-    if (!isAnimating.current) {
-      if (hoveredId.current !== null) applyScale(hoveredId.current, 1);
-      applyScale(id, HOVER_SCALE_MULT);
-    }
     hoveredId.current = id;
+    isAnimating.current = true; // 새 호버/이전 호버 둘 다 이 프레임 루프가 damp 처리
     setHoveredTrackId(nodes[id].trackId);
   };
 
   const handlePointerOut = () => {
-    if (hoveredId.current !== null && !isAnimating.current) {
-      applyScale(hoveredId.current, 1);
-    }
     hoveredId.current = null;
+    isAnimating.current = true;
     setHoveredTrackId(null);
   };
 

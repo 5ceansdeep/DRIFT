@@ -29,7 +29,7 @@ export default function GalaxyHud() {
         </Link>
       </div>
       {hovered && (
-        <div className="absolute bottom-4 right-4 flex items-end gap-2 text-right">
+        <div className="drift-panel-in absolute bottom-4 right-4 flex items-end gap-2 text-right">
           <div className="opacity-70">
             {hovered.title} — {hovered.artist}
           </div>

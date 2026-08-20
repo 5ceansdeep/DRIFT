@@ -28,9 +28,22 @@ export default function SerendipityComet() {
     );
   }, []);
 
+  const haloRef = useRef<THREE.Mesh>(null!);
+
   useFrame(({ clock }) => {
-    const t = (clock.getElapsedTime() * 0.05) % 1;
-    meshRef.current?.position.copy(curve.getPoint(t));
+    const elapsed = clock.getElapsedTime();
+    const t = (elapsed * 0.05) % 1;
+    const pos = curve.getPoint(t);
+    meshRef.current?.position.copy(pos);
+    haloRef.current?.position.copy(pos);
+
+    // 은은하게 숨쉬는 후광 — 혜성이라는 걸 눈에 띄게 알려준다.
+    const pulse = 1 + Math.sin(elapsed * 2.2) * 0.25;
+    if (haloRef.current) {
+      haloRef.current.scale.setScalar(pulse);
+      (haloRef.current.material as THREE.MeshBasicMaterial).opacity =
+        0.18 + Math.sin(elapsed * 2.2) * 0.08;
+    }
   });
 
   const handleClick = (e: { stopPropagation: () => void }) => {
@@ -53,9 +66,16 @@ export default function SerendipityComet() {
   };
 
   return (
-    <mesh ref={meshRef} onClick={handleClick}>
-      <sphereGeometry args={[1.6, 16, 16]} />
-      <meshBasicMaterial color="#000000" wireframe />
-    </mesh>
+    <>
+      {/* 숨쉬는 후광 — 클릭 대상 아님(raycast 제외), 순수 장식 */}
+      <mesh ref={haloRef} raycast={() => null}>
+        <sphereGeometry args={[3.2, 16, 16]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.18} depthWrite={false} />
+      </mesh>
+      <mesh ref={meshRef} onClick={handleClick}>
+        <sphereGeometry args={[1.6, 16, 16]} />
+        <meshBasicMaterial color="#000000" wireframe />
+      </mesh>
+    </>
   );
 }

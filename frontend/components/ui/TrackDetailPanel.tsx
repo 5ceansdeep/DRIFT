@@ -49,7 +49,7 @@ export default function TrackDetailPanel() {
 
   return (
     <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
-      <div className="pointer-events-auto flex w-72 flex-col items-center gap-4 border border-black bg-[#c8f0d8]/50 p-6 font-mono text-black shadow-lg backdrop-blur-sm">
+      <div className="drift-panel-in pointer-events-auto flex w-72 flex-col items-center gap-4 border border-black bg-[#c8f0d8]/50 p-6 font-mono text-black shadow-lg backdrop-blur-sm">
         <button
           onClick={() => setSelectedTrackId(null)}
           className="self-end text-[11px] opacity-50 hover:opacity-100"
