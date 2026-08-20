@@ -103,6 +103,9 @@ export class SongsService {
           genreTags: tags,
         },
       });
+      // refit을 기다리지 않고 이 자리에서 바로 좌표 배정 (모델 있을 때만)
+      const coord = await this.pcaService.updateSongCoords(song.id, vector);
+      if (coord) song = { ...song, ...coord };
     } else if ((song.songVector as number[]).length === 0) {
       // 검색 자동 저장으로 들어온 곡 (song_vector 없음) → 지금 생성
       const { vector, tags } = await this.songVectorService.generateSongVector(dto.title, dto.artist);
@@ -111,6 +114,8 @@ export class SongsService {
         where: { id: song.id },
         data: { songVector: vector, genreTags: tags, previewUrl: dto.previewUrl ?? null },
       });
+      const coord = await this.pcaService.updateSongCoords(song.id, vector);
+      if (coord) song = { ...song, ...coord };
     }
 
     // UserSong 연결 (이미 있으면 무시)
