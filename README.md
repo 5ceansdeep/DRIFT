@@ -11,11 +11,10 @@
 git clone https://github.com/5ceansdeep/DRIFT.git
 cd DRIFT
 
-cd backend && npm install && npm run dev     # Postgres 설치 필요 없음, 알아서 DB 뜸
-```
+npm install                       # 루트(concurrently) + backend + frontend 한 번에
+cd backend && npm install && cd ../frontend && npm install && cd ..
 
-```bash
-cd frontend && npm install && npm run dev
+npm run dev                       # 백엔드+프론트엔드 동시 기동 (한 터미널)
 ```
 
 - 백엔드: `http://localhost:3001` (Swagger: `http://localhost:3001/api-docs`)
@@ -24,6 +23,9 @@ cd frontend && npm install && npm run dev
 `backend`는 `npm run dev` 실행 시 `predev` 훅이 `prisma dev`로 로컬 Postgres를 자동으로
 띄우고 `.env`를 생성한 뒤 마이그레이션까지 적용합니다. 자세한 내용은
 [backend/README.md](backend/README.md) 참고.
+
+각자 따로 띄우고 싶으면 `cd backend && npm run dev` / `cd frontend && npm run dev`를
+별도 터미널에서 실행해도 됩니다.
 
 ## 기술 스택
 
