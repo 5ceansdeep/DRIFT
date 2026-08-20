@@ -16,7 +16,6 @@ const FOCUS_DISTANCE = 18;
 // 확인되어 Phase 1에서는 제외한다 (docs/tech-spec.md 3.1 참고).
 export default function CanvasContainer() {
   const controlsRef = useRef<React.ComponentRef<typeof CameraControls>>(null);
-  const viewMode = useGalaxyStore((state) => state.viewMode);
   const savedSectors = useGalaxyStore((state) => state.savedSectors);
   const selectedTrackId = useGalaxyStore((state) => state.selectedTrackId);
   const nodes = useGalaxyStore((state) => state.nodes);
@@ -55,11 +54,10 @@ export default function CanvasContainer() {
         />
         <ambientLight intensity={0.8} />
         <AudioController />
-        {viewMode === "GALAXY" && <GalaxyScene />}
+        <GalaxyScene />
         {savedSectors.map((sector) => (
           <SectorVolumeBox key={sector.sectorId} sector={sector} />
         ))}
-        {/* TWIN 씬은 Phase 3에서 구현 */}
       </Canvas>
     </div>
   );

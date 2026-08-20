@@ -6,6 +6,7 @@ import InstancedStars from "../objects/InstancedStars";
 
 export default function GalaxyScene() {
   const setNodes = useGalaxyStore((state) => state.setNodes);
+  const setSectors = useGalaxyStore((state) => state.setSectors);
   const nodeCount = useGalaxyStore((state) => state.nodes.length);
 
   useEffect(() => {
@@ -14,7 +15,12 @@ export default function GalaxyScene() {
       .then((res) => res.json())
       .then((data) => setNodes(data.nodes))
       .catch((err) => console.error("[GalaxyScene] failed to load nodes:", err));
-  }, [nodeCount, setNodes]);
+
+    fetch("/api/sectors")
+      .then((res) => res.json())
+      .then((data) => setSectors(data.sectors))
+      .catch((err) => console.error("[GalaxyScene] failed to load sectors:", err));
+  }, [nodeCount, setNodes, setSectors]);
 
   return <InstancedStars />;
 }

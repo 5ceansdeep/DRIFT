@@ -13,6 +13,8 @@ export default function SectorToolbar() {
   const addSector = useGalaxyStore((state) => state.addSector);
   const nodes = useGalaxyStore((state) => state.nodes);
   const sectorCount = useGalaxyStore((state) => state.savedSectors.length);
+  const isClusterMode = useGalaxyStore((state) => state.isClusterMode);
+  const toggleClusterMode = useGalaxyStore((state) => state.toggleClusterMode);
 
   const handleSave = () => {
     const picked = nodes.filter((n) => draftTrackIds.includes(n.trackId));
@@ -27,16 +29,24 @@ export default function SectorToolbar() {
     const name = window.prompt(`구역 이름을 입력하세요 (${picked.length}곡)`, "My Sector");
     if (!name) return;
 
-    addSector({
+    const sector = {
       sectorId: crypto.randomUUID(),
       name,
       bounds: {
-        min: [box.min.x, box.min.y, box.min.z],
-        max: [box.max.x, box.max.y, box.max.z],
+        min: [box.min.x, box.min.y, box.min.z] as [number, number, number],
+        max: [box.max.x, box.max.y, box.max.z] as [number, number, number],
       },
       trackIds: picked.map((n) => n.trackId),
       createdAt: new Date().toISOString(),
-    });
+    };
+
+    addSector(sector); // 즉시 반영 (optimistic)
+    fetch("/api/sectors", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(sector),
+    }).catch((err) => console.error("[SectorToolbar] failed to persist sector:", err));
+
     toggleSectorDrawMode();
   };
 
@@ -76,7 +86,19 @@ export default function SectorToolbar() {
       )}
 
       {!isSectorDrawMode && sectorCount > 0 && (
-        <div className="text-black opacity-60">SAVED SECTORS · {sectorCount}</div>
+        <>
+          <button
+            onClick={toggleClusterMode}
+            className={`border border-black px-3 py-1.5 tracking-wider transition-colors ${
+              isClusterMode
+                ? "bg-black text-[#E0F2E9]"
+                : "bg-[#E0F2E9]/80 text-black hover:bg-black hover:text-[#E0F2E9]"
+            }`}
+          >
+            {isClusterMode ? "● 클러스터 정렬 중" : "○ 클러스터 정렬"}
+          </button>
+          <div className="text-black opacity-60">SAVED SECTORS · {sectorCount}</div>
+        </>
       )}
     </div>
   );

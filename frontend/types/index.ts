@@ -1,4 +1,5 @@
-export type ViewMode = "GALAXY" | "SECTOR" | "TWIN";
+// NOTE: 단일 캔버스 내 모드 스위칭(ViewMode)은 폐기하고 /galaxy, /explore, /twin
+// 독립 라우트로 분리했다 (docs/tech-spec.md 1.2, 아키텍처 개정 메모 참고).
 
 export interface TrackNode {
   trackId: string;
