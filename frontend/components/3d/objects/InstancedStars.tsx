@@ -8,23 +8,33 @@ import { calculateRedshiftColorAndPosition } from "@/engine/RedshiftEngine";
 
 const tempObject = new THREE.Object3D();
 const HOVER_SCALE_MULT = 1.6;
+const PICK_COLOR = new THREE.Color("#ff2fb0"); // Sector 큐레이션 중 담긴 곡 강조색
+
+interface BaseTransform {
+  position: THREE.Vector3;
+  scale: number;
+  color: THREE.Color;
+}
 
 export default function InstancedStars() {
   const meshRef = useRef<THREE.InstancedMesh>(null!);
-  // Redshift 계산으로 얻은 기준 위치/스케일 — 호버 시 이 값을 기준으로만 확대/축소한다.
-  const baseTransforms = useRef<{ position: THREE.Vector3; scale: number }[]>([]);
+  // Redshift 계산으로 얻은 기준 위치/스케일/색상 — 호버·큐레이션 강조는 이 값을 기준으로만 덧칠한다.
+  const baseTransforms = useRef<BaseTransform[]>([]);
   const hoveredId = useRef<number | null>(null);
 
   const nodes = useGalaxyStore((state) => state.nodes);
   const setHoveredTrackId = useGalaxyStore((state) => state.setHoveredTrackId);
   const setSelectedTrackId = useGalaxyStore((state) => state.setSelectedTrackId);
+  const isSectorDrawMode = useGalaxyStore((state) => state.isSectorDrawMode);
+  const draftTrackIds = useGalaxyStore((state) => state.draftTrackIds);
+  const toggleDraftTrack = useGalaxyStore((state) => state.toggleDraftTrack);
 
   // Instanced Matrix 및 Color 매핑 (노드 목록이 바뀔 때만 재계산)
   useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh || nodes.length === 0) return;
 
-    const transforms: { position: THREE.Vector3; scale: number }[] = [];
+    const transforms: BaseTransform[] = [];
 
     nodes.forEach((node, i) => {
       const basePos = new THREE.Vector3(...node.position3D);
@@ -33,7 +43,7 @@ export default function InstancedStars() {
         node.lastPlayedAt
       );
 
-      transforms.push({ position, scale });
+      transforms.push({ position, scale, color });
 
       tempObject.position.copy(position);
       tempObject.scale.set(scale, scale, scale);
@@ -47,6 +57,20 @@ export default function InstancedStars() {
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [nodes]);
+
+  // Sector 큐레이션 중 담긴/뺀 곡의 색상을 강조/원복한다.
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh || baseTransforms.current.length === 0) return;
+    const draftSet = new Set(draftTrackIds);
+
+    nodes.forEach((node, i) => {
+      const base = baseTransforms.current[i];
+      if (!base) return;
+      mesh.setColorAt(i, draftSet.has(node.trackId) ? PICK_COLOR : base.color);
+    });
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, [draftTrackIds, nodes]);
 
   const applyScale = (id: number, mult: number) => {
     const mesh = meshRef.current;
@@ -82,7 +106,13 @@ export default function InstancedStars() {
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
     const id = e.instanceId;
-    if (id !== undefined && nodes[id]) setSelectedTrackId(nodes[id].trackId);
+    if (id === undefined || !nodes[id]) return;
+
+    if (isSectorDrawMode) {
+      toggleDraftTrack(nodes[id].trackId);
+    } else {
+      setSelectedTrackId(nodes[id].trackId);
+    }
   };
 
   return (

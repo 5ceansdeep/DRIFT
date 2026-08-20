@@ -9,7 +9,6 @@ export default function GalaxyHud() {
   const hoveredTrackId = useGalaxyStore((state) => state.hoveredTrackId);
   const selectedTrackId = useGalaxyStore((state) => state.selectedTrackId);
   const nodes = useGalaxyStore((state) => state.nodes);
-  const dragRect = useGalaxyStore((state) => state.dragRectScreen);
   const isSectorDrawMode = useGalaxyStore((state) => state.isSectorDrawMode);
 
   const hovered = nodes.find((n) => n.trackId === hoveredTrackId);
@@ -23,7 +22,7 @@ export default function GalaxyHud() {
           NODES {nodeCount > 0 ? nodeCount : "LOADING..."}
         </div>
         {isSectorDrawMode && (
-          <div className="mt-1 text-black">드래그해서 구역을 지정하세요</div>
+          <div className="mt-1 text-black">곡을 클릭해서 구역에 담으세요 (다시 클릭하면 뺌)</div>
         )}
       </div>
       <div className="absolute bottom-4 right-4 text-right">
@@ -34,24 +33,12 @@ export default function GalaxyHud() {
         )}
         {selected && (
           <div className="mt-1 font-bold">
-            SELECTED · {selected.title} — {selected.artist} (재생 중)
+            SELECTED · {selected.title} — {selected.artist}
           </div>
         )}
       </div>
 
       <SectorToolbar />
-
-      {dragRect && (
-        <div
-          className="absolute border border-dashed border-black bg-black/10"
-          style={{
-            left: Math.min(dragRect.x1, dragRect.x2),
-            top: Math.min(dragRect.y1, dragRect.y2),
-            width: Math.abs(dragRect.x2 - dragRect.x1),
-            height: Math.abs(dragRect.y2 - dragRect.y1),
-          }}
-        />
-      )}
     </div>
   );
 }
