@@ -45,11 +45,13 @@ async function login(): Promise<string> {
 async function authedFetch(
   path: string,
   overrideToken?: string,
-  retried = false
+  retried = false,
+  init?: RequestInit
 ): Promise<Response> {
   const token = overrideToken ?? cachedToken ?? (await login());
   const res = await fetch(`${BACKEND_URL}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
+    ...init,
+    headers: { ...init?.headers, Authorization: `Bearer ${token}` },
     cache: "no-store",
   });
 
@@ -58,7 +60,7 @@ async function authedFetch(
   // 401이면 그대로 호출부에 돌려줘서 mock 폴백 등으로 처리하게 한다.
   if (res.status === 401 && !retried && !overrideToken) {
     cachedToken = null;
-    return authedFetch(path, undefined, true);
+    return authedFetch(path, undefined, true, init);
   }
   return res;
 }
@@ -118,4 +120,33 @@ export async function fetchTwin(overrideToken?: string): Promise<BackendTwin | n
   if (!res.ok) throw new Error(`/users/twin 조회 실패: ${res.status}`);
   const data = (await res.json()) as { twin: BackendTwin | null; message?: string };
   return data.twin;
+}
+
+export interface BackendSector {
+  sectorId: string;
+  name: string;
+  bounds: { min: number[]; max: number[] };
+  trackIds: string[];
+  createdAt: string;
+}
+
+/** GET /sectors — 로그인한 유저가 저장한 구역 목록(DB 영속 — 서버 재시작해도 안 사라짐). */
+export async function fetchSectors(overrideToken?: string): Promise<BackendSector[]> {
+  const res = await authedFetch("/sectors", overrideToken);
+  if (!res.ok) throw new Error(`/sectors 조회 실패: ${res.status}`);
+  return res.json();
+}
+
+/** POST /sectors — 새 구역 저장. */
+export async function createSector(
+  sector: { name: string; boundsMin: number[]; boundsMax: number[]; trackIds: string[] },
+  overrideToken?: string
+): Promise<BackendSector> {
+  const res = await authedFetch("/sectors", overrideToken, false, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(sector),
+  });
+  if (!res.ok) throw new Error(`/sectors 생성 실패: ${res.status}`);
+  return res.json();
 }

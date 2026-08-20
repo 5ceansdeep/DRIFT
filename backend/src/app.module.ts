@@ -6,8 +6,9 @@ import { UsersModule } from './users/users.module';
 import { SongsModule } from './songs/songs.module';
 import { SatellitesModule } from './satellites/satellites.module';
 import { UniverseModule } from './universe/universe.module';
+import { SectorsModule } from './sectors/sectors.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), PrismaModule, AuthModule, UsersModule, SongsModule, SatellitesModule, UniverseModule],
+  imports: [ScheduleModule.forRoot(), PrismaModule, AuthModule, UsersModule, SongsModule, SatellitesModule, UniverseModule, SectorsModule],
 })
 export class AppModule {}

@@ -22,7 +22,7 @@ export default function GalaxyScene() {
       })
       .catch((err) => console.error("[GalaxyScene] failed to load nodes:", err));
 
-    fetch("/api/sectors")
+    fetch("/api/sectors", { headers: authHeader() })
       .then((res) => res.json())
       .then((data) => setSectors(data.sectors))
       .catch((err) => console.error("[GalaxyScene] failed to load sectors:", err));

@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import * as THREE from "three";
 import { useGalaxyStore } from "@/store/useGalaxyStore";
 import { calculateRedshiftColorAndPosition } from "@/engine/RedshiftEngine";
+import { authHeader } from "@/lib/authClient";
+import type { SavedSector } from "@/types";
 
 // Phase 2 최소 툴바. 정식 SectorCreatorToolbar는 추후 디자인 확정 후 교체.
 export default function SectorToolbar() {
@@ -15,8 +18,9 @@ export default function SectorToolbar() {
   const sectorCount = useGalaxyStore((state) => state.savedSectors.length);
   const isClusterMode = useGalaxyStore((state) => state.isClusterMode);
   const toggleClusterMode = useGalaxyStore((state) => state.toggleClusterMode);
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const picked = nodes.filter((n) => draftTrackIds.includes(n.trackId));
     if (picked.length === 0) return;
 
@@ -29,25 +33,30 @@ export default function SectorToolbar() {
     const name = window.prompt(`구역 이름을 입력하세요 (${picked.length}곡)`, "My Sector");
     if (!name) return;
 
-    const sector = {
-      sectorId: crypto.randomUUID(),
+    const payload = {
       name,
-      bounds: {
-        min: [box.min.x, box.min.y, box.min.z] as [number, number, number],
-        max: [box.max.x, box.max.y, box.max.z] as [number, number, number],
-      },
+      boundsMin: [box.min.x, box.min.y, box.min.z],
+      boundsMax: [box.max.x, box.max.y, box.max.z],
       trackIds: picked.map((n) => n.trackId),
-      createdAt: new Date().toISOString(),
     };
 
-    addSector(sector); // 즉시 반영 (optimistic)
-    fetch("/api/sectors", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(sector),
-    }).catch((err) => console.error("[SectorToolbar] failed to persist sector:", err));
-
-    toggleSectorDrawMode();
+    setSaving(true);
+    try {
+      const res = await fetch("/api/sectors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeader() },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`저장 실패: ${res.status}`);
+      const { sector } = (await res.json()) as { sector: SavedSector };
+      addSector(sector); // 서버가 발급한 id로 반영 — DB에 영속되므로 새로고침해도 안 사라짐
+      toggleSectorDrawMode();
+    } catch (err) {
+      console.error("[SectorToolbar] failed to persist sector:", err);
+      window.alert("구역 저장에 실패했어요. 다시 시도해주세요.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -76,10 +85,10 @@ export default function SectorToolbar() {
             </button>
             <button
               onClick={handleSave}
-              disabled={draftTrackIds.length === 0}
+              disabled={draftTrackIds.length === 0 || saving}
               className="border border-black bg-black px-2 py-1 text-[#c8f0d8] disabled:opacity-30"
             >
-              ✓
+              {saving ? "···" : "✓"}
             </button>
           </div>
         </div>

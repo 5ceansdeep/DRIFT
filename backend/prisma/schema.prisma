@@ -21,6 +21,7 @@ model User {
 
   userSongs  UserSong[]
   satellites Satellite[]
+  sectors    Sector[]
   @@map("users")
 }
 
@@ -58,6 +59,20 @@ model UserSong {
 
   @@unique([userId, songId])
   @@map("user_songs")
+}
+
+model Sector {
+  id        String   @id @default(uuid())
+  ownerId   String   @map("owner_id")
+  name      String
+  boundsMin Float[]  @map("bounds_min")
+  boundsMax Float[]  @map("bounds_max")
+  trackIds  String[] @map("track_ids")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("sectors")
 }
 
 model Satellite {
