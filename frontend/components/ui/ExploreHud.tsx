@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useExploreStore } from "@/store/useExploreStore";
+import { iTunesCoverUrl } from "@/lib/itunesImage";
 
 // Phase 3 최소 HUD. 정식 디자인은 추후 확정.
 export default function ExploreHud() {
@@ -51,8 +52,13 @@ export default function ExploreHud() {
       {activeNode && (
         <div className="pointer-events-none absolute bottom-4 left-4 flex max-w-xs items-center gap-2 border border-black bg-[#E0F2E9]/90 px-3 py-2 text-[11px]">
           {activeNode.coverUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지
-            <img src={activeNode.coverUrl} alt="" className="h-10 w-10 border border-black object-cover" />
+            // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지, 썸네일 크기로 요청해 로딩 가볍게
+            <img
+              src={iTunesCoverUrl(activeNode.coverUrl, 80)!}
+              alt=""
+              decoding="async"
+              className="h-10 w-10 border border-black object-cover"
+            />
           )}
           <div>
             <div className="font-bold">{activeNode.title}</div>

@@ -3,6 +3,7 @@
 import { useGalaxyStore } from "@/store/useGalaxyStore";
 import SectorToolbar from "./SectorToolbar";
 import TrackDetailPanel from "./TrackDetailPanel";
+import { iTunesCoverUrl } from "@/lib/itunesImage";
 
 // Phase 1 검증용 최소 HUD. HeaderNav 정식 컴포넌트는 추후 교체.
 export default function GalaxyHud() {
@@ -23,8 +24,13 @@ export default function GalaxyHud() {
             {hovered.title} — {hovered.artist}
           </div>
           {hovered.coverUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지
-            <img src={hovered.coverUrl} alt="" className="h-10 w-10 border border-black object-cover" />
+            // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지, 썸네일 크기로 요청해 로딩 가볍게
+            <img
+              src={iTunesCoverUrl(hovered.coverUrl, 80)!}
+              alt=""
+              decoding="async"
+              className="h-10 w-10 border border-black object-cover"
+            />
           )}
         </div>
       )}

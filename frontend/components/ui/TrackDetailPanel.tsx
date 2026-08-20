@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useGalaxyStore } from "@/store/useGalaxyStore";
 import { spatialAudioEngine } from "@/engine/SpatialAudioEngine";
+import { iTunesCoverUrl } from "@/lib/itunesImage";
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec) || sec < 0) return "0:00";
@@ -57,10 +58,11 @@ export default function TrackDetailPanel() {
         </button>
 
         {selected.coverUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지
+          // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지, 표시 크기(192px)의 2배 정도로 요청
           <img
-            src={selected.coverUrl}
+            src={iTunesCoverUrl(selected.coverUrl, 400)!}
             alt=""
+            decoding="async"
             className="h-48 w-48 border border-black object-cover"
           />
         ) : (

@@ -2,7 +2,9 @@
 
 import { useEffect } from "react";
 import { useGalaxyStore } from "@/store/useGalaxyStore";
+import { prefetchCovers } from "@/lib/itunesImage";
 import InstancedStars from "../objects/InstancedStars";
+import type { TrackNode } from "@/types";
 
 export default function GalaxyScene() {
   const setNodes = useGalaxyStore((state) => state.setNodes);
@@ -13,7 +15,10 @@ export default function GalaxyScene() {
     if (nodeCount > 0) return;
     fetch("/api/galaxy")
       .then((res) => res.json())
-      .then((data) => setNodes(data.nodes))
+      .then((data) => {
+        setNodes(data.nodes);
+        prefetchCovers(data.nodes.map((n: TrackNode) => n.coverUrl));
+      })
       .catch((err) => console.error("[GalaxyScene] failed to load nodes:", err));
 
     fetch("/api/sectors")
