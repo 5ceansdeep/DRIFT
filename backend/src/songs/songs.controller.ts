@@ -25,6 +25,15 @@ export class SongsController {
     return this.recommendService.recommend(user.id);
   }
 
+  @Get('recommend/full')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '곡 추천 전체 목록 (Explore 유사도 존용, 임계값 없음)' })
+  @ApiResponse({ status: 200, description: '아카이브 안 한 곡 전체 + 코사인 유사도' })
+  recommendFull(@CurrentUser() user: { id: string }) {
+    return this.recommendService.recommendFull(user.id);
+  }
+
   @Get('search')
   @ApiOperation({ summary: '곡 검색 (iTunes)' })
   @ApiQuery({ name: 'q', example: '아이유', description: '검색어' })

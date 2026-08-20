@@ -63,6 +63,39 @@ export class RecommendService {
     return { stars, comets };
   }
 
+  /**
+   * Explore 뷰(코사인 유사도 존 분리) 전용 — 임계값으로 거르지 않고
+   * 아카이브 안 한 곡 전체를 유사도값과 함께 반환한다.
+   */
+  async recommendFull(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.tasteVector || (user.tasteVector as number[]).length === 0) {
+      return { songs: [] };
+    }
+
+    const tasteVector = user.tasteVector as number[];
+
+    const archivedSongIds = (
+      await this.prisma.userSong.findMany({ where: { userId }, select: { songId: true } })
+    ).map((us) => us.songId);
+
+    const songs = await this.prisma.song.findMany({
+      where: {
+        id: { notIn: archivedSongIds.length ? archivedSongIds : ['__none__'] },
+        songVector: { isEmpty: false },
+      },
+    });
+
+    const scored = songs
+      .map((song) => ({
+        song,
+        similarity: cosineSimilarity(tasteVector, song.songVector as number[]),
+      }))
+      .sort((a, b) => b.similarity - a.similarity);
+
+    return { songs: scored.map(({ song, similarity }) => this.formatSong(song, similarity)) };
+  }
+
   private formatSong(song: any, similarity: number) {
     return {
       id: song.id,
