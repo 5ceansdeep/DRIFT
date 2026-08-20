@@ -59,6 +59,31 @@ export class SpatialAudioEngine {
     this.audioElements.get(trackId)?.pause();
   }
 
+  public togglePlay(trackId: string) {
+    const audio = this.audioElements.get(trackId);
+    if (!audio) return;
+    if (audio.paused) audio.play().catch(() => {});
+    else audio.pause();
+  }
+
+  public seek(trackId: string, time: number) {
+    const audio = this.audioElements.get(trackId);
+    if (audio) audio.currentTime = time;
+  }
+
+  /** 재생바 UI용 — currentTime/duration/일시정지 여부를 스냅샷으로 반환. */
+  public getPlaybackState(
+    trackId: string
+  ): { currentTime: number; duration: number; paused: boolean } | null {
+    const audio = this.audioElements.get(trackId);
+    if (!audio) return null;
+    return {
+      currentTime: audio.currentTime,
+      duration: Number.isFinite(audio.duration) ? audio.duration : 0,
+      paused: audio.paused,
+    };
+  }
+
   public updateListenerPosition(pos: [number, number, number]) {
     if (!this.ctx) return;
     const l = this.ctx.listener;
