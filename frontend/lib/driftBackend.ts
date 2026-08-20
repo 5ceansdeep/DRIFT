@@ -62,3 +62,24 @@ export async function fetchBackendStars(): Promise<BackendStar[]> {
   if (!res.ok) throw new Error(`/universe/stars 조회 실패: ${res.status}`);
   return res.json();
 }
+
+export interface RecommendCandidate {
+  id: string;
+  title: string;
+  artist: string;
+  coverUrl: string | null;
+  previewUrl: string | null;
+  genreTags: string[];
+  similarity: number; // 코사인 유사도, -1~1 (실질적으로는 태그가 0/1 가중치라 보통 0~1)
+}
+
+/**
+ * GET /songs/recommend/full — 아카이브 안 한 곡 전체 + 실제 코사인 유사도.
+ * Explore 뷰의 HIGH/MID/LOW 존을 채우는 데 쓰인다 (mock 랜덤 유사도 대체).
+ */
+export async function fetchRecommendCandidates(): Promise<RecommendCandidate[]> {
+  const res = await authedFetch("/songs/recommend/full");
+  if (!res.ok) throw new Error(`/songs/recommend/full 조회 실패: ${res.status}`);
+  const data = (await res.json()) as { songs: RecommendCandidate[] };
+  return data.songs;
+}

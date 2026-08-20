@@ -15,9 +15,13 @@ export default function ExploreHud() {
   const activeNode = nodes.find((n) => n.trackId === activeId);
 
   const handleWarp = () => {
-    const antipodeNodes = nodes.filter((n) => n.similarity < -0.7);
-    if (antipodeNodes.length === 0) return;
-    const target = antipodeNodes[Math.floor(Math.random() * antipodeNodes.length)];
+    if (nodes.length === 0) return;
+    // 절대 임계값(-0.7) 대신 "가장 유사도가 낮은 쪽 10%"에서 뽑는다 — mock 데이터는
+    // -1~1 범위라 절대 임계값도 맞지만, 실 데이터(코사인 유사도, 태그가 전부
+    // 0 이상 가중치라 사실상 0~1 범위)엔 음수가 거의 없어 대척점이 안 잡힌다.
+    const sorted = [...nodes].sort((a, b) => a.similarity - b.similarity);
+    const pool = sorted.slice(0, Math.max(1, Math.ceil(sorted.length * 0.1)));
+    const target = pool[Math.floor(Math.random() * pool.length)];
     startWarp(target.trackId);
   };
 
@@ -47,11 +51,17 @@ export default function ExploreHud() {
       </div>
 
       {activeNode && (
-        <div className="absolute bottom-4 left-4 max-w-xs border border-black bg-[#E0F2E9]/90 px-3 py-2 text-[11px]">
-          <div className="font-bold">{activeNode.title}</div>
-          <div className="opacity-70">{activeNode.artist}</div>
-          <div className="opacity-50">
-            {activeNode.genre} · SIM {activeNode.similarity.toFixed(2)}
+        <div className="pointer-events-none absolute bottom-4 left-4 flex max-w-xs items-center gap-2 border border-black bg-[#E0F2E9]/90 px-3 py-2 text-[11px]">
+          {activeNode.coverUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지
+            <img src={activeNode.coverUrl} alt="" className="h-10 w-10 border border-black object-cover" />
+          )}
+          <div>
+            <div className="font-bold">{activeNode.title}</div>
+            <div className="opacity-70">{activeNode.artist}</div>
+            <div className="opacity-50">
+              {activeNode.genre} · MATCH {Math.round(activeNode.similarity * 100)}%
+            </div>
           </div>
         </div>
       )}

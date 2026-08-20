@@ -35,12 +35,21 @@ export default function SerendipityComet() {
 
   const handleClick = (e: { stopPropagation: () => void }) => {
     e.stopPropagation();
-    const boundaryNodes = nodes.filter(
-      (n) => n.similarity >= 0.3 && n.similarity <= 0.5
+    if (nodes.length === 0) return;
+
+    const boundaryNodes = nodes.filter((n) => n.similarity >= 0.3 && n.similarity <= 0.5);
+    if (boundaryNodes.length > 0) {
+      const pick = boundaryNodes[Math.floor(Math.random() * boundaryNodes.length)];
+      setSelectedTrackId(pick.trackId);
+      return;
+    }
+
+    // 실 데이터는 후보가 적어 0.3~0.5 구간이 비어있을 수 있다 — 그 경우
+    // 경계값(0.4)에 가장 가까운 곡으로 대체해 혜성 클릭이 항상 반응하게 한다.
+    const closest = nodes.reduce((best, n) =>
+      Math.abs(n.similarity - 0.4) < Math.abs(best.similarity - 0.4) ? n : best
     );
-    if (boundaryNodes.length === 0) return;
-    const pick = boundaryNodes[Math.floor(Math.random() * boundaryNodes.length)];
-    setSelectedTrackId(pick.trackId);
+    setSelectedTrackId(closest.trackId);
   };
 
   return (
