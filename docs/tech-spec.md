@@ -612,7 +612,8 @@ export interface TasteTwinData {
 - [x] `RedshiftEngine` 개발 및 반감기 기반 위치/색상/크기 보간 파이프라인 연결
 - [x] **(개정)** 단일 캔버스 `ViewMode`(GALAXY/SECTOR/TWIN) 스위칭 폐기 → `/galaxy`, `/explore`, `/twin` 독립 라우트로 분리. `/explore`, `/twin`은 스텁 페이지만 존재 (`app/explore/page.tsx`, `app/twin/page.tsx`)
 - [x] **(개정)** 키보드(WASD) 항해는 스코프에서 완전히 제외 — 마우스 `CameraControls`만 사용. 노드 클릭 시 `setLookAt`으로 Fly-To 포커스 이동 구현 (`CanvasContainer.tsx`)
-- [x] **실 데이터 연동 1단계** — `app/api/galaxy/route.ts`가 `backend GET /universe/stars`를 우선 시도(백엔드 다운/좌표 없음 시 mock 800개로 자동 폴백). 로그인 UI가 아직 없어 `frontend/lib/driftBackend.ts`가 데모 계정(`.env.local`, gitignored)으로 서버사이드 로그인 후 토큰 재사용. iTunes 검색 + Last.fm/iTunes 장르 태그로 실제 곡 15개 아카이브 + `POST /universe/refit` 실행 완료, `/galaxy`에서 실제 앨범커버·장르·미리듣기·제목·가수 확인. TODO: 정식 로그인 플로우, `UserSong.savedAt` 기반 `lastPlayedAt` 연동(현재는 전부 "방금 재생"으로 고정), 곡 수 늘어나면 `POSITION_SCALE` 재조정
+- [x] **실 데이터 연동** — `app/api/galaxy/route.ts`가 `backend GET /universe/stars`를 우선 시도(백엔드 다운/좌표 없음 시 mock 800개로 자동 폴백). 곡 아카이브 시 `PcaService.updateSongCoords()`가 즉시 좌표를 배정해 refit을 안 기다려도 됨(±0.06 jitter로 겹침 방지)
+- [x] **정식 로그인 플로우** — 랜딩 auth-box가 실제로 `/auth/signup`·`/auth/login` 호출(`lib/authClient.ts` + `drift-app.js`의 `submitAuth()`), 토큰은 `localStorage`로 3D 라우트와 공유. `api/galaxy·explore·twin` 라우트가 요청의 Authorization 헤더(로그인한 실 유저)를 우선 쓰고, 없으면 데모 계정으로 폴백. `ArchiveSearch.tsx`로 로그인한 유저가 직접 곡을 검색·아카이브 가능. TODO: `UserSong.savedAt` 기반 `lastPlayedAt` 연동(현재는 전부 "방금 재생"으로 고정), 곡 수 늘어나면 `POSITION_SCALE` 재조정
 - [ ] 1,000개 이상 노드 기준 60 FPS 실측 검증 (브라우저 프로파일링 필요)
 
 ### Phase 2 — Spatial Audio & Interaction Systems
@@ -625,7 +626,9 @@ export interface TasteTwinData {
 - [ ] 실제 오디오 파일 (지금은 `/audio/sample.mp3`가 존재하지 않아 재생은 조용히 실패함)
 
 ### Phase 3 — Twin Scene & Visual Polish
-- [x] **(개정)** `/twin` 라우트에 `TwinScene.tsx` 구현 — 1:1 오버레이 아님, Twin 유저 우주를 단독 렌더링(mock `app/api/twin/route.ts`, `useTwinStore.ts`, `TwinStars.tsx`, `TwinCanvasContainer.tsx`, `TwinHud.tsx`). Gap Node는 `#FF0055` + `TARGET DISCOVERY` `Html` 라벨로 표기, 노드 크기도 1.4배 확대해 시각적으로 강조. 클릭 시 Fly-To 카메라 이동은 Galaxy와 동일한 패턴(RedshiftEngine 보정 좌표 기준)으로 구현
+- [x] **(개정)** `/twin` 라우트에 `TwinScene.tsx` 구현 — 1:1 오버레이 아님, Twin 유저 우주를 단독 렌더링(`useTwinStore.ts`, `TwinStars.tsx`, `TwinCanvasContainer.tsx`, `TwinHud.tsx`). Gap Node는 `#FF0055` + `TARGET DISCOVERY` `Html` 라벨로 표기, 노드 크기도 1.4배 확대해 시각적으로 강조. 클릭 시 Fly-To 카메라 이동은 Galaxy와 동일한 패턴(RedshiftEngine 보정 좌표 기준)으로 구현
+- [x] **실 데이터 연동** — 신규 `UsersService.findTwin()` + `GET /users/twin`(taste_vector 코사인 유사도 최고 1명 + 그 유저 아카이브, Gap Node = 상대는 담았지만 나는 안 담은 곡). `app/api/twin/route.ts`가 실 데이터 우선 시도, 비교할 유저/아카이브 없으면 mock 150개 폴백. 곡 좌표는 Galaxy와 같은 PCA 모델의 `song.coordX/Y/Z`를 재사용
+- [x] **공통 컴포넌트화** — `TrackDetailPanel`(클릭 시 화면 중앙 앨범커버+재생바)·`AudioController`(HRTF 재생)를 스토어 직접 구독에서 `{node, onClose, badge?}`/`{selectedTrackId, nodes}` props 방식으로 바꿔 Galaxy/Explore/Twin 3라우트 공통 사용. Explore/Twin은 이번에 처음으로 오디오 재생 자체가 연결됨
 - [x] `/explore` 라우트: 코사인 유사도 High/Mid/Low 존 분리(`engine/SimilarityZones.ts` — 반지름 방사형 매핑 + 구역 판별) + `SimilarityZoneShells.tsx`(경계 와이어프레임 구 + 라벨), mock `app/api/explore/route.ts`(600 노드), `useExploreStore.ts`
 - [x] `SerendipityComet` 3차원 스플라인 애니메이션(`SerendipityComet.tsx`, HIGH/MID 경계 0.3~0.5 유사도 구간 순찰) 및 클릭 이벤트로 경계 트랙 무작위 포착 → 선택/Fly-To. 실 데이터라 후보가 적어 그 구간이 비어있을 땐 유사도 0.4에 가장 가까운 곡으로 대체
 - [x] 대척점 블랙홀 워프 — HUD 버튼 클릭 시 유사도 하위 10% 중 무작위 노드로 Fly-To(절대 임계값 `-0.7` 대신 상대 퍼센타일 — 실 코사인 유사도는 태그가 전부 0 이상이라 사실상 음수가 안 나옴) + `TacticalEffects.tsx`(`@react-three/postprocessing`의 `ColorAverage`)로 워프 중에만 흑백 반전, 전환 종료 후 자동 해제
