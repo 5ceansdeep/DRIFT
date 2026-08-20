@@ -29,3 +29,8 @@ cd frontend && npm install && npm run dev
 
 - **Backend**: NestJS, Prisma 7, PostgreSQL, JWT
 - **Frontend**: Next.js, React, Three.js / React Three Fiber
+
+## 문서
+
+- [docs/product-report.md](docs/product-report.md) — 제품/디자인 종합 보고서 (컨셉, 3대 뷰 체계, 핵심 기능, 로드맵)
+- [docs/tech-spec.md](docs/tech-spec.md) — 프론트엔드 상세 개발 명세 (아키텍처, 컴포넌트 구조, 엔진별 예시 코드, 마일스톤 체크리스트)
