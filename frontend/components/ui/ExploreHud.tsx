@@ -28,9 +28,12 @@ export default function ExploreHud() {
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 font-mono text-black">
-      <div className="absolute left-4 top-4 flex flex-col gap-1 text-[11px]">
-        <Link href="/galaxy" className="pointer-events-auto w-fit opacity-60 hover:opacity-100">
-          ←
+      <div className="pointer-events-auto absolute left-4 top-4 flex flex-col gap-1 text-[11px]">
+        <Link href="/galaxy" className="w-fit opacity-60 hover:opacity-100">
+          ← GALAXY
+        </Link>
+        <Link href="/twin" className="w-fit opacity-40 hover:opacity-100">
+          TWIN →
         </Link>
         <div className="opacity-40">{nodes.length > 0 ? nodes.length : "···"}</div>
       </div>

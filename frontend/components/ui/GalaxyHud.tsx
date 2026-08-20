@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useGalaxyStore } from "@/store/useGalaxyStore";
 import SectorToolbar from "./SectorToolbar";
 import TrackDetailPanel from "./TrackDetailPanel";
@@ -17,7 +18,15 @@ export default function GalaxyHud() {
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 p-4 font-mono text-[11px] text-black">
-      <div className="absolute left-4 top-4 opacity-40">{nodeCount > 0 ? nodeCount : "···"}</div>
+      <div className="pointer-events-auto absolute left-4 top-4 flex flex-col gap-1">
+        <div className="opacity-40">{nodeCount > 0 ? nodeCount : "···"}</div>
+        <Link href="/explore" className="w-fit opacity-40 hover:opacity-100">
+          EXPLORE →
+        </Link>
+        <Link href="/twin" className="w-fit opacity-40 hover:opacity-100">
+          TWIN →
+        </Link>
+      </div>
       {hovered && (
         <div className="absolute bottom-4 right-4 flex items-end gap-2 text-right">
           <div className="opacity-70">

@@ -14,9 +14,12 @@ export default function TwinHud() {
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 font-mono text-black">
-      <div className="absolute left-4 top-4 flex flex-col gap-1 text-[11px]">
-        <Link href="/galaxy" className="pointer-events-auto w-fit opacity-60 hover:opacity-100">
-          ←
+      <div className="pointer-events-auto absolute left-4 top-4 flex flex-col gap-1 text-[11px]">
+        <Link href="/galaxy" className="w-fit opacity-60 hover:opacity-100">
+          ← GALAXY
+        </Link>
+        <Link href="/explore" className="w-fit opacity-40 hover:opacity-100">
+          EXPLORE →
         </Link>
         {twinData && <div className="mt-1 font-bold opacity-70">{twinData.matchPercentage}%</div>}
       </div>
