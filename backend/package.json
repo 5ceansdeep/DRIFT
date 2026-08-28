@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "predev": "node scripts/setup-db.js",
     "dev": "nest start --watch",
     "build": "nest build",
-    "start": "node dist/main.js"
+    "start": "node dist/main.js",
+    "db:start": "node scripts/setup-db.js",
+    "db:stop": "prisma dev stop default"
   },
   "keywords": [],
   "author": "",
@@ -43,5 +46,10 @@
     "prisma": "^7.4.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true,
+    "@prisma/engines@7.4.2": true,
+    "prisma@7.4.2": true
   }
 }

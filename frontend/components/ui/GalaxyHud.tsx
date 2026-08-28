@@ -1,0 +1,55 @@
+"use client";
+
+import Link from "next/link";
+import { useGalaxyStore } from "@/store/useGalaxyStore";
+import SectorToolbar from "./SectorToolbar";
+import TrackDetailPanel from "./TrackDetailPanel";
+import ArchiveSearch from "./ArchiveSearch";
+import { iTunesCoverUrl } from "@/lib/itunesImage";
+
+// Phase 1 검증용 최소 HUD. HeaderNav 정식 컴포넌트는 추후 교체.
+export default function GalaxyHud() {
+  const nodeCount = useGalaxyStore((state) => state.nodes.length);
+  const hoveredTrackId = useGalaxyStore((state) => state.hoveredTrackId);
+  const selectedTrackId = useGalaxyStore((state) => state.selectedTrackId);
+  const setSelectedTrackId = useGalaxyStore((state) => state.setSelectedTrackId);
+  const nodes = useGalaxyStore((state) => state.nodes);
+
+  // 선택된 곡은 TrackDetailPanel(화면 중앙)이 담당 — 여기선 hover만 가볍게 표시.
+  const hovered = selectedTrackId ? undefined : nodes.find((n) => n.trackId === hoveredTrackId);
+  const selected = nodes.find((n) => n.trackId === selectedTrackId) ?? null;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-10 p-4 font-mono text-[11px] text-black">
+      <div className="pointer-events-auto absolute left-4 top-4 flex flex-col gap-1">
+        <div className="opacity-40">{nodeCount > 0 ? nodeCount : "···"}</div>
+        <Link href="/explore" className="w-fit opacity-40 hover:opacity-100">
+          EXPLORE →
+        </Link>
+        <Link href="/twin" className="w-fit opacity-40 hover:opacity-100">
+          TWIN →
+        </Link>
+      </div>
+      {hovered && (
+        <div className="drift-panel-in absolute bottom-4 right-4 flex items-end gap-2 text-right">
+          <div className="opacity-70">
+            {hovered.title} — {hovered.artist}
+          </div>
+          {hovered.coverUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- 외부(iTunes) 원격 이미지, 썸네일 크기로 요청해 로딩 가볍게
+            <img
+              src={iTunesCoverUrl(hovered.coverUrl, 80)!}
+              alt=""
+              decoding="async"
+              className="h-10 w-10 border border-black object-cover"
+            />
+          )}
+        </div>
+      )}
+
+      <SectorToolbar />
+      <TrackDetailPanel node={selected} onClose={() => setSelectedTrackId(null)} />
+      <ArchiveSearch />
+    </div>
+  );
+}
