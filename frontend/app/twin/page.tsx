@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 const TwinCanvasContainer = dynamic(() => import("@/components/3d/TwinCanvasContainer"), {
   ssr: false,
   loading: () => (
-    <main className="flex h-screen w-screen items-center justify-center bg-[#c8f0d8] font-mono text-black">
+    <main className="flex h-screen w-screen items-center justify-center bg-paper font-mono text-black">
       LOADING TWIN UNIVERSE...
     </main>
   ),
@@ -15,7 +15,7 @@ const TwinCanvasContainer = dynamic(() => import("@/components/3d/TwinCanvasCont
 
 export default function TwinPage() {
   return (
-    <main className="h-screen w-screen bg-[#c8f0d8]">
+    <main className="h-screen w-screen bg-paper">
       <TwinCanvasContainer />
     </main>
   );

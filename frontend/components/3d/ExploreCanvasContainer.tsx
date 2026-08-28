@@ -9,6 +9,7 @@ import AudioController from "./AudioController";
 import { useExploreStore } from "@/store/useExploreStore";
 import ExploreHud from "../ui/ExploreHud";
 import AtmosphereFX from "../ui/AtmosphereFX";
+import { DRIFT_PAPER_HEX } from "@/lib/driftTheme";
 
 const FOCUS_DISTANCE = 18;
 const WARP_TRANSITION_MS = 1300; // CameraControls smoothTime(0.9~1.2s)에 맞춘 여유값
@@ -54,7 +55,7 @@ export default function ExploreCanvasContainer() {
         dpr={[1, 2]}
         camera={{ position: [0, 0, 150], fov: 55 }}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-        onCreated={({ gl }) => gl.setClearColor("#c8f0d8")}
+        onCreated={({ gl }) => gl.setClearColor(DRIFT_PAPER_HEX)}
       >
         <CameraControls
           ref={controlsRef}

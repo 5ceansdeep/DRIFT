@@ -12,6 +12,7 @@ import { calculateRedshiftColorAndPosition } from "@/engine/RedshiftEngine";
 import { buildClusterTargets } from "@/engine/ClusterAnimationEngine";
 import GalaxyHud from "../ui/GalaxyHud";
 import AtmosphereFX from "../ui/AtmosphereFX";
+import { DRIFT_PAPER_HEX } from "@/lib/driftTheme";
 
 const FOCUS_DISTANCE = 18;
 
@@ -65,7 +66,7 @@ export default function CanvasContainer() {
         dpr={[1, 2]}
         camera={{ position: [0, 0, 120], fov: 55 }}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-        onCreated={({ gl }) => gl.setClearColor("#c8f0d8")}
+        onCreated={({ gl }) => gl.setClearColor(DRIFT_PAPER_HEX)}
       >
         <CameraControls
           ref={controlsRef}

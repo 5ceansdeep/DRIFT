@@ -65,15 +65,15 @@ export default function SectorToolbar() {
         onClick={toggleSectorDrawMode}
         className={`border border-black px-3 py-1.5 tracking-wider transition-colors ${
           isSectorDrawMode
-            ? "bg-black text-[#c8f0d8]"
-            : "bg-[#c8f0d8]/80 text-black hover:bg-black hover:text-[#c8f0d8]"
+            ? "bg-black text-paper"
+            : "bg-paper/80 text-black hover:bg-black hover:text-paper"
         }`}
       >
         {isSectorDrawMode ? "✕" : "▢"}
       </button>
 
       {isSectorDrawMode && (
-        <div className="drift-panel-in flex flex-col items-end gap-1 border border-black bg-[#c8f0d8]/90 px-3 py-2">
+        <div className="drift-panel-in flex flex-col items-end gap-1 border border-black bg-paper/90 px-3 py-2">
           <div className="text-black opacity-60">{draftTrackIds.length}</div>
           <div className="flex gap-1.5">
             <button
@@ -86,7 +86,7 @@ export default function SectorToolbar() {
             <button
               onClick={handleSave}
               disabled={draftTrackIds.length === 0 || saving}
-              className="border border-black bg-black px-2 py-1 text-[#c8f0d8] disabled:opacity-30"
+              className="border border-black bg-black px-2 py-1 text-paper disabled:opacity-30"
             >
               {saving ? "···" : "✓"}
             </button>
@@ -99,8 +99,8 @@ export default function SectorToolbar() {
           onClick={toggleClusterMode}
           className={`border border-black px-3 py-1.5 tracking-wider transition-colors ${
             isClusterMode
-              ? "bg-black text-[#c8f0d8]"
-              : "bg-[#c8f0d8]/80 text-black hover:bg-black hover:text-[#c8f0d8]"
+              ? "bg-black text-paper"
+              : "bg-paper/80 text-black hover:bg-black hover:text-paper"
           }`}
         >
           {isClusterMode ? "●" : "○"}

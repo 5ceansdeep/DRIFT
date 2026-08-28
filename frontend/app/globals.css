@@ -12,6 +12,22 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/*
+ * DRIFT 공통 색 토큰 — /galaxy, /explore, /twin 라우트 전체에서 쓰는 팔레트.
+ * 여기 등록하면 Tailwind가 bg-paper, text-ink, border-paper/50 같은 유틸리티
+ * 클래스를 만들어주고 --color-paper 등 CSS 변수도 전역에 노출된다.
+ * 값을 바꿀 땐 이 한 곳만 고치면 됨 (app/drift-theme.css, 컴포넌트들이 전부 이걸 참조).
+ * 원본 랜딩 목업(app/drift.css)은 독립된 정적 파일이라 별도로 자기 --paper를 가진다.
+ */
+@theme {
+  --color-paper: #c8f0d8;
+  --color-ink: #0a0f0c;
+  --color-ink2: #2a3830;
+  --color-ink3: #5a7060;
+  --color-rule: #0a0f0c;
+  --color-muted: #7aaa8a;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

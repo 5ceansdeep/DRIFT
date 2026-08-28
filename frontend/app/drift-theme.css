@@ -3,19 +3,16 @@
  * 폰트/색/아날로그 텍스처를 /galaxy, /explore, /twin 라우트에도 적용해 톤을
  * 통일한다. drift.css 전체를 끌어오면 이미 지운 목업 화면용 규칙까지 딸려오므로,
  * 재사용 가능한 "분위기" 부분만 뽑아 별도 파일로 관리한다.
+ *
+ * 색 토큰(--paper 등)은 globals.css의 @theme에 단일 소스로 등록돼 있고,
+ * 여기서는 그걸 var(--color-*)로 참조만 한다. 폰트 토큰은 Tailwind 기본
+ * --font-mono(Geist)와 이름이 겹쳐서 별도 --f-* 이름으로 유지.
  */
 
 :root {
   --f-mono: 'IBM Plex Mono', 'Noto Sans KR', monospace;
   --f-display: 'Unbounded', 'Noto Sans KR', sans-serif;
   --f-kr: 'Noto Sans KR', 'IBM Plex Mono', sans-serif;
-
-  --paper: #c8f0d8;
-  --ink: #0a0f0c;
-  --ink2: #2a3830;
-  --ink3: #5a7060;
-  --rule: #0a0f0c;
-  --muted: #7aaa8a;
 }
 
 body {
@@ -63,7 +60,7 @@ body {
 
 /* ── REGISTRATION MARKS (필름 레지 마크 — 코너 장식) ── */
 .drift-reg { position: fixed; z-index: 42; pointer-events: none; }
-.drift-reg::before, .drift-reg::after { content: ''; position: absolute; background: var(--ink); opacity: 0.2; }
+.drift-reg::before, .drift-reg::after { content: ''; position: absolute; background: var(--color-ink); opacity: 0.2; }
 .drift-reg-tl { top: 8px; left: 8px; }
 .drift-reg-tl::before { width: 16px; height: 1px; top: 0; left: 0; }
 .drift-reg-tl::after { width: 1px; height: 16px; top: 0; left: 0; }

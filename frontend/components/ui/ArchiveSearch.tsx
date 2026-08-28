@@ -68,13 +68,13 @@ export default function ArchiveSearch() {
     <div className="pointer-events-auto absolute left-4 bottom-4 z-20 flex flex-col items-start gap-1 font-mono text-[11px]">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="border border-black bg-[#c8f0d8]/80 px-3 py-1.5 text-black hover:bg-black hover:text-[#c8f0d8]"
+        className="border border-black bg-paper/80 px-3 py-1.5 text-black hover:bg-black hover:text-paper"
       >
         {open ? "✕" : "+ 곡 담기"}
       </button>
 
       {open && (
-        <div className="drift-panel-in flex w-72 flex-col gap-2 border border-black bg-[#c8f0d8]/90 p-3 text-black">
+        <div className="drift-panel-in flex w-72 flex-col gap-2 border border-black bg-paper/90 p-3 text-black">
           <div className="flex gap-1">
             <input
               value={query}
