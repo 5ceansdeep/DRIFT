@@ -50,7 +50,9 @@ export async function GET(request: Request) {
   const overrideToken = auth?.startsWith("Bearer ") ? auth.slice(7) : undefined;
 
   try {
-    const candidates = await fetchRecommendCandidates(overrideToken);
+    // recommendFull은 유사도순 정렬된 "아카이브 안 한 곡 전체"라 카탈로그가
+    // 크면 화면이 앨범 카드로 뒤덮인다 — 상위 40개만 보여준다.
+    const candidates = (await fetchRecommendCandidates(overrideToken)).slice(0, 40);
     if (candidates.length === 0) {
       throw new Error("추천 후보 없음 (아카이브 곡 없음 또는 taste_vector 미생성)");
     }

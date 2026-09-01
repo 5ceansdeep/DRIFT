@@ -1,115 +1,131 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import type { ThreeEvent } from "@react-three/fiber";
+import { Billboard } from "@react-three/drei";
 import { useExploreStore } from "@/store/useExploreStore";
-import { colorForSimilarity } from "@/engine/SimilarityZones";
+import { iTunesCoverUrl } from "@/lib/itunesImage";
 import type { TrackNode } from "@/types";
 
-const tempObject = new THREE.Object3D();
-const HOVER_SCALE_MULT = 1.6;
-const HOVER_LAMBDA = 14; // 호버 스케일 damp 계수 — 클수록 빠르게 반응
-const BASE_SCALE = 0.7;
+const INK = "#0a0f0c";
+const CARD_SIZE = 5;
+const FRAME_PAD = 0.7; // 사진 주변에 남는 잉크 테두리 두께
+const HOVER_SCALE = 1.5;
+const SELECT_SCALE = 2.8;
+const SCALE_LAMBDA = 10; // damp 계수 — 클수록 빠르게 반응
 
-export default function ExploreStars({ nodes }: { nodes: TrackNode[] }) {
-  const meshRef = useRef<THREE.InstancedMesh>(null!);
-  const hoveredId = useRef<number | null>(null);
-  // 현재 스케일 배수(1 = base) — 매 프레임 목표치로 damp되어 순간이동 대신
-  // 부드럽게 커지고 줄어든다.
-  const scaleMults = useRef<number[]>([]);
-  const isAnimating = useRef(false);
-
-  const setHoveredTrackId = useExploreStore((state) => state.setHoveredTrackId);
-  const setSelectedTrackId = useExploreStore((state) => state.setSelectedTrackId);
+// 커버 URL을 three.js 텍스처로 로드하는 훅. drei의 useTexture(Suspense 기반)
+// 대신 직접 로더를 써서, 실패(네트워크 오류·CORS 등)해도 앱 전체가 죽지
+// 않고 그냥 커버 없는 카드(잉크 테두리만)로 조용히 폴백하게 한다.
+function useCoverTexture(url: string | null): THREE.Texture | null {
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
-    const mesh = meshRef.current;
-    if (!mesh || nodes.length === 0) return;
-
-    nodes.forEach((node, i) => {
-      const color = colorForSimilarity(node.similarity);
-      tempObject.position.set(...node.position3D);
-      tempObject.scale.set(BASE_SCALE, BASE_SCALE, BASE_SCALE);
-      tempObject.updateMatrix();
-      mesh.setMatrixAt(i, tempObject.matrix);
-      mesh.setColorAt(i, color);
-    });
-
-    scaleMults.current = nodes.map(() => 1);
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  }, [nodes]);
-
-  // 호버 스케일 배수를 목표치로 damp — 수렴하면 자동으로 멈춘다.
-  useFrame((_, delta) => {
-    if (!isAnimating.current) return;
-    const mesh = meshRef.current;
-    if (!mesh || nodes.length === 0) {
-      isAnimating.current = false;
+    let cancelled = false;
+    if (!url) {
+      // url이 없어졌을 때(커버 없는 곡으로 바뀜)만 리셋 — 로더 콜백과 같은
+      // "외부 리소스 로딩 결과 반영" 성격이라 동기 setState를 의도적으로 씀.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTexture(null);
       return;
     }
-
-    let stillMoving = false;
-
-    nodes.forEach((node, i) => {
-      const targetMult = i === hoveredId.current ? HOVER_SCALE_MULT : 1;
-      const curMult = scaleMults.current[i] ?? 1;
-      if (Math.abs(curMult - targetMult) > 0.002) {
-        scaleMults.current[i] = THREE.MathUtils.damp(curMult, targetMult, HOVER_LAMBDA, delta);
-        stillMoving = true;
-      } else {
-        scaleMults.current[i] = targetMult;
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      url,
+      (tex) => {
+        if (cancelled) {
+          tex.dispose();
+          return;
+        }
+        tex.colorSpace = THREE.SRGBColorSpace;
+        setTexture(tex);
+      },
+      undefined,
+      () => {
+        if (!cancelled) setTexture(null);
       }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
 
-      const s = BASE_SCALE * scaleMults.current[i];
-      tempObject.position.set(...node.position3D);
-      tempObject.scale.set(s, s, s);
-      tempObject.updateMatrix();
-      mesh.setMatrixAt(i, tempObject.matrix);
-    });
+  return texture;
+}
 
-    mesh.instanceMatrix.needsUpdate = true;
-    if (!stillMoving) isAnimating.current = false;
+// 노드 하나 = 실제 앨범 커버 사진이 붙은 카드. 항상 카메라를 바라보도록
+// Billboard로 감싸고, 호버/선택 시 부드럽게 확대된다. 노드마다 텍스처가
+// 달라서(InstancedMesh는 인스턴스별 텍스처를 못 씀) 개별 메시로 렌더링한다 —
+// Explore 후보곡 수(수십 개)에선 성능 문제가 없다.
+function TrackCard({ node }: { node: TrackNode }) {
+  const groupRef = useRef<THREE.Group>(null!);
+  const scaleRef = useRef(1);
+  const [hovered, setHovered] = useState(false);
+
+  const isSelected = useExploreStore((s) => s.selectedTrackId === node.trackId);
+  const setHoveredTrackId = useExploreStore((s) => s.setHoveredTrackId);
+  const setSelectedTrackId = useExploreStore((s) => s.setSelectedTrackId);
+
+  const coverUrl = node.coverUrl ? iTunesCoverUrl(node.coverUrl, 200) : null;
+  const cover = useCoverTexture(coverUrl);
+
+  useFrame((_, delta) => {
+    const target = isSelected ? SELECT_SCALE : hovered ? HOVER_SCALE : 1;
+    if (Math.abs(scaleRef.current - target) < 0.002) {
+      scaleRef.current = target;
+    } else {
+      scaleRef.current = THREE.MathUtils.damp(scaleRef.current, target, SCALE_LAMBDA, delta);
+    }
+    groupRef.current?.scale.setScalar(scaleRef.current);
   });
 
-  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
+  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
-    const id = e.instanceId;
-    if (id === undefined || !nodes[id] || id === hoveredId.current) return;
-
-    hoveredId.current = id;
-    isAnimating.current = true;
-    setHoveredTrackId(nodes[id].trackId);
+    setHovered(true);
+    setHoveredTrackId(node.trackId);
   };
-
-  const handlePointerOut = () => {
-    hoveredId.current = null;
-    isAnimating.current = true;
+  const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    setHovered(false);
     setHoveredTrackId(null);
   };
-
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    const id = e.instanceId;
-    if (id === undefined || !nodes[id]) return;
-    setSelectedTrackId(nodes[id].trackId);
+    setSelectedTrackId(node.trackId);
   };
 
   return (
-    <instancedMesh
-      ref={meshRef}
-      args={[undefined, undefined, nodes.length]}
-      // 호버 시 setMatrixAt으로 스케일을 바꾸는데, InstancedMesh의 캐시된
-      // 바운딩 스피어가 갱신되지 않아 전체가 컬링될 수 있어 꺼둔다.
-      frustumCulled={false}
-      onPointerMove={handlePointerMove}
-      onPointerOut={handlePointerOut}
-      onClick={handleClick}
-    >
-      <octahedronGeometry args={[0.8, 0]} />
-      <meshBasicMaterial wireframe vertexColors toneMapped={false} />
-    </instancedMesh>
+    <Billboard position={node.position3D}>
+      <group
+        ref={groupRef}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+        onClick={handleClick}
+      >
+        {/* 잉크 프레임 — 커버가 없으면 이 사각형만 보여 기존 마커와 동일하게 동작 */}
+        <mesh>
+          <planeGeometry args={[CARD_SIZE + FRAME_PAD, CARD_SIZE + FRAME_PAD]} />
+          <meshBasicMaterial color={INK} toneMapped={false} side={THREE.DoubleSide} />
+        </mesh>
+        {cover && (
+          <mesh position={[0, 0, 0.05]}>
+            <planeGeometry args={[CARD_SIZE, CARD_SIZE]} />
+            <meshBasicMaterial map={cover} toneMapped={false} side={THREE.DoubleSide} />
+          </mesh>
+        )}
+      </group>
+    </Billboard>
+  );
+}
+
+export default function ExploreStars({ nodes }: { nodes: TrackNode[] }) {
+  return (
+    <>
+      {nodes.map((node) => (
+        <TrackCard key={node.trackId} node={node} />
+      ))}
+    </>
   );
 }

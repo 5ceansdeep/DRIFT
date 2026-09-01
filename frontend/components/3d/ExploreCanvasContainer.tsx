@@ -13,6 +13,10 @@ import { DRIFT_PAPER_HEX } from "@/lib/driftTheme";
 
 const FOCUS_DISTANCE = 18;
 const WARP_TRANSITION_MS = 1300; // CameraControls smoothTime(0.9~1.2s)에 맞춘 여유값
+// 직교 카메라라 확대/축소는 위치가 아니라 zoom 값이 좌우한다 — 기본 줌은
+// Canvas의 camera.zoom(4)과 맞추고, 곡을 선택하면 이만큼 확대한다.
+const DEFAULT_ZOOM = 4;
+const SELECTED_ZOOM = 13;
 
 export default function ExploreCanvasContainer() {
   const controlsRef = useRef<React.ComponentRef<typeof CameraControls>>(null);
@@ -22,13 +26,19 @@ export default function ExploreCanvasContainer() {
   const warpTargetId = useExploreStore((state) => state.warpTargetId);
   const endWarp = useExploreStore((state) => state.endWarp);
 
-  // 곡 클릭 → 일반 Fly-To
+  // 곡 클릭 → 노드를 화면 중앙으로 이동 + 확대. 선택 해제 시 원래 배율로 복귀.
   useEffect(() => {
-    if (!selectedTrackId || !controlsRef.current || isWarping) return;
+    if (!controlsRef.current || isWarping) return;
+
+    if (!selectedTrackId) {
+      controlsRef.current.zoomTo(DEFAULT_ZOOM, true);
+      return;
+    }
     const node = nodes.find((n) => n.trackId === selectedTrackId);
     if (!node) return;
     const [x, y, z] = node.position3D;
     controlsRef.current.setLookAt(x, y, z + FOCUS_DISTANCE, x, y, z, true);
+    controlsRef.current.zoomTo(SELECTED_ZOOM, true);
   }, [selectedTrackId, nodes, isWarping]);
 
   // 블랙홀 워프 → 대척점 존으로 급이동 + 일정 시간 뒤 흑백 효과 해제
@@ -41,6 +51,7 @@ export default function ExploreCanvasContainer() {
     }
     const [x, y, z] = node.position3D;
     controlsRef.current.setLookAt(x, y, z + FOCUS_DISTANCE, x, y, z, true);
+    controlsRef.current.zoomTo(SELECTED_ZOOM, true);
 
     const timer = setTimeout(() => endWarp(), WARP_TRANSITION_MS);
     return () => clearTimeout(timer);
@@ -53,15 +64,18 @@ export default function ExploreCanvasContainer() {
 
       <Canvas
         dpr={[1, 2]}
-        camera={{ position: [0, 0, 150], fov: 55 }}
+        orthographic
+        // 등각(isometric) 느낌 — 원근 소실점 없이 격자가 평행한 다이아몬드로
+        // 보이도록 직교 카메라를 대각선 위치에서 시작시킨다.
+        camera={{ position: [110, 85, 110], zoom: 4, near: 0.1, far: 2000 }}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
         onCreated={({ gl }) => gl.setClearColor(DRIFT_PAPER_HEX)}
       >
         <CameraControls
           ref={controlsRef}
           makeDefault
-          maxDistance={300}
-          minDistance={5}
+          minZoom={1.2}
+          maxZoom={18}
           azimuthRotateSpeed={0.3}
           polarRotateSpeed={0.3}
           dollySpeed={0.5}

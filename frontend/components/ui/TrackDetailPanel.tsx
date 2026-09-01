@@ -17,6 +17,12 @@ interface TrackDetailPanelProps {
   onClose: () => void;
   /** Explore의 MATCH %, Twin의 GAP NODE 표시처럼 라우트마다 다른 부가 정보 */
   badge?: React.ReactNode;
+  /**
+   * "center"(기본, Galaxy/Twin) — 화면 정중앙 카드.
+   * "side"(Explore만) — 참고 HTML(#tp)처럼 화면 오른쪽에서 슬라이드 인하는
+   * 세로 패널. Galaxy/Twin은 prop을 안 넘기므로 기본값 그대로 영향 없음.
+   */
+  variant?: "center" | "side";
 }
 
 // 곡 클릭 시 별 대신 화면 정중앙에 뜨는 앨범 커버 + 재생바.
@@ -25,7 +31,7 @@ interface TrackDetailPanelProps {
 // AudioController(Canvas 내부, 역시 공통)가 이미 틀어놓은 <audio>를
 // SpatialAudioEngine에서 200ms 간격으로 폴링해 읽어온다 — Canvas 내부/외부
 // 컴포넌트 간 effect 실행 순서를 보장할 수 없어서 구독 대신 폴링을 쓴다.
-export default function TrackDetailPanel({ node, onClose, badge }: TrackDetailPanelProps) {
+export default function TrackDetailPanel({ node, onClose, badge, variant = "center" }: TrackDetailPanelProps) {
   const [playback, setPlayback] = useState({ currentTime: 0, duration: 0, paused: true });
   const barRef = useRef<HTMLDivElement>(null);
   const trackId = node?.trackId ?? null;
@@ -52,9 +58,23 @@ export default function TrackDetailPanel({ node, onClose, badge }: TrackDetailPa
     spatialAudioEngine.seek(trackId, ratio * playback.duration);
   };
 
+  const isSide = variant === "side";
+
   return (
-    <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
-      <div className="drift-panel-in pointer-events-auto flex w-72 flex-col items-center gap-4 border border-black bg-paper/50 p-6 font-mono text-black shadow-lg backdrop-blur-sm">
+    <div
+      className={
+        isSide
+          ? "pointer-events-none fixed inset-y-0 right-0 z-30 flex"
+          : "pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
+      }
+    >
+      <div
+        className={
+          isSide
+            ? "drift-panel-in-side pointer-events-auto flex h-full w-72 flex-col items-center gap-4 overflow-y-auto border-l border-black bg-paper/85 p-6 font-mono text-black shadow-lg backdrop-blur-sm"
+            : "drift-panel-in pointer-events-auto flex w-72 flex-col items-center gap-4 border border-black bg-paper/50 p-6 font-mono text-black shadow-lg backdrop-blur-sm"
+        }
+      >
         <button onClick={onClose} className="self-end text-[11px] opacity-50 hover:opacity-100">
           ✕
         </button>

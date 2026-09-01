@@ -58,6 +58,26 @@ body {
   to { opacity: 1; transform: none; }
 }
 
+/* ── PANEL ENTRANCE, SIDE (Explore #tp처럼 오른쪽에서 슬라이드 인) ── */
+.drift-panel-in-side {
+  animation: drift-panel-in-side 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes drift-panel-in-side {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* ── MARQUEE (Explore 상단 트랙 티커) ── */
+.drift-marquee-track {
+  display: flex;
+  white-space: nowrap;
+  animation: drift-marquee 32s linear infinite;
+}
+@keyframes drift-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* ── REGISTRATION MARKS (필름 레지 마크 — 코너 장식) ── */
 .drift-reg { position: fixed; z-index: 42; pointer-events: none; }
 .drift-reg::before, .drift-reg::after { content: ''; position: absolute; background: var(--color-ink); opacity: 0.2; }

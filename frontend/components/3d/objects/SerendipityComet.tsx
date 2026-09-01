@@ -6,8 +6,13 @@ import * as THREE from "three";
 import { useExploreStore } from "@/store/useExploreStore";
 import { COMET_RADIUS_RANGE } from "@/engine/SimilarityZones";
 
+const INK = "#0a0f0c";
+const TRAIL_LAG = 0.015; // 꼬리가 머리보다 이만큼 뒤처진 위치를 따라간다
+
 // 0.3~0.5 유사도 경계(필터 버블의 가장자리)를 순찰하는 세렌디피티 혜성.
 // 클릭하면 그 경계 구간에서 무작위 트랙 하나를 "포착"해 선택 상태로 만든다.
+// 연구소 컨셉: 빛나는 후광 대신, 참고 HTML의 궤도 표지처럼 얇은 와이어프레임
+// 정팔면체 + 짧은 꼬리선 하나만 남긴다 — 계측기가 궤적을 추적하는 인상.
 export default function SerendipityComet() {
   const meshRef = useRef<THREE.Mesh>(null!);
   const nodes = useExploreStore((state) => state.nodes);
@@ -28,22 +33,35 @@ export default function SerendipityComet() {
     );
   }, []);
 
-  const haloRef = useRef<THREE.Mesh>(null!);
+  // 꼬리선: <line> JSX는 React의 SVG <line> 타입과 이름이 겹쳐 타입 충돌이
+  // 나서, three.js Line 객체를 직접 만들어 <primitive>로 붙인다.
+  const trailLine = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(6), 3));
+    const mat = new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: 0.35 });
+    const line = new THREE.Line(g, mat);
+    line.raycast = () => {};
+    return line;
+  }, []);
 
   useFrame(({ clock }) => {
     const elapsed = clock.getElapsedTime();
     const t = (elapsed * 0.05) % 1;
     const pos = curve.getPoint(t);
     meshRef.current?.position.copy(pos);
-    haloRef.current?.position.copy(pos);
 
-    // 은은하게 숨쉬는 후광 — 혜성이라는 걸 눈에 띄게 알려준다.
-    const pulse = 1 + Math.sin(elapsed * 2.2) * 0.25;
-    if (haloRef.current) {
-      haloRef.current.scale.setScalar(pulse);
-      (haloRef.current.material as THREE.MeshBasicMaterial).opacity =
-        0.18 + Math.sin(elapsed * 2.2) * 0.08;
+    // 은은한 회전 — 정지된 채로는 죽어 보인다.
+    if (meshRef.current) {
+      meshRef.current.rotation.x += 0.006;
+      meshRef.current.rotation.y += 0.004;
     }
+
+    // 꼬리: 머리 위치 → 살짝 이전 시각의 위치로 이어지는 짧은 선분.
+    const tailPos = curve.getPoint((t - TRAIL_LAG + 1) % 1);
+    const attr = trailLine.geometry.getAttribute("position") as THREE.BufferAttribute;
+    attr.setXYZ(0, pos.x, pos.y, pos.z);
+    attr.setXYZ(1, tailPos.x, tailPos.y, tailPos.z);
+    attr.needsUpdate = true;
   });
 
   const handleClick = (e: { stopPropagation: () => void }) => {
@@ -67,14 +85,11 @@ export default function SerendipityComet() {
 
   return (
     <>
-      {/* 숨쉬는 후광 — 클릭 대상 아님(raycast 제외), 순수 장식 */}
-      <mesh ref={haloRef} raycast={() => null}>
-        <sphereGeometry args={[3.2, 16, 16]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.18} depthWrite={false} />
-      </mesh>
+      {/* 꼬리선 — 클릭 대상 아님, 순수 장식 */}
+      <primitive object={trailLine} />
       <mesh ref={meshRef} onClick={handleClick}>
-        <sphereGeometry args={[1.6, 16, 16]} />
-        <meshBasicMaterial color="#000000" wireframe />
+        <octahedronGeometry args={[1.6, 0]} />
+        <meshBasicMaterial color={INK} wireframe />
       </mesh>
     </>
   );
